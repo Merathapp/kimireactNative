@@ -38,7 +38,6 @@
     },
     "plugins": [
       "expo-localization",
-      "expo-sharing",
       "expo-file-system",
     ],
     "extra": {
