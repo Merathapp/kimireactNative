@@ -40,7 +40,6 @@
       "expo-localization",
       "expo-sharing",
       "expo-file-system",
-      "expo-print"
     ],
     "extra": {
       "eas": {
