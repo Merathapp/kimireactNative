@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "حاسبة المواريث الإسلامية",
+    "slug": "inheritance-calculator",
+    "version": "5.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4f46e5"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.inheritance.calculator",
+      "buildNumber": "5.0.0"
+    },
+    "android": {
+      "package": "com.inheritance.calculator",
+      "versionCode": 500,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4f46e5"
+      },
+      "permissions": [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ],
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-localization",
+      "expo-sharing",
+      "expo-file-system",
+      "expo-print"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "inheritance-calculator-pro"
+      }
+    },
+    "owner": "inheritance-calculator",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/inheritance-calculator-pro"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
+  }
+}
