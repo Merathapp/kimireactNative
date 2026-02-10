@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "حاسبة المواريث الإسلامية",
-    "slug": "inheritance-calculator",
+    "slug": "merath_mobile",
     "version": "5.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -42,13 +42,13 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "inheritance-calculator-pro"
+        "projectId": "2c2de43d-16e9-4c3f-88b6-be678d534494"
       }
     },
     "owner": "inheritance-calculator",
     "updates": {
       "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/inheritance-calculator-pro"
+      "url": "https://u.expo.dev/2c2de43d-16e9-4c3f-88b6-be678d534494"
     },
     "runtimeVersion": {
       "policy": "sdkVersion"
