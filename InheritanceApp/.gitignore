@@ -37,6 +37,3 @@ web-build/
 # Temporary files
 *.tmp
 *.temp
-
-# Parent directory files
-../*
