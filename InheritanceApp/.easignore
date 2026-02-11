@@ -1,0 +1,19 @@
+# Git history - NEVER needed for builds
+.git/
+.gitignore
+.gitattributes
+
+# Local environment
+.expo/
+.expo-shared/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
