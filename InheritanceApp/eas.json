@@ -13,14 +13,16 @@
     "preview": {
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease -Pexpo.useLegacyPackaging=true"
       },
       "channel": "preview",
       "autoIncrement": true
     },
     "production": {
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease -Pexpo.useLegacyPackaging=true"
       },
       "channel": "production",
       "autoIncrement": true
