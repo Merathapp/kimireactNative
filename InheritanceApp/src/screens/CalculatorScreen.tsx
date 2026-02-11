@@ -26,8 +26,9 @@ import { InheritanceEngine } from '../utils/InheritanceEngine';
 import { validateAll } from '../utils/Validation';
 import { FIQH_DATABASE, MadhabType, getMadhabConfig } from '../constants/FiqhDatabase';
 import { HeirInput } from '../components/HeirInput';
-import { MadhabCard } from '../components/MadhabCard';
+import { MadhabDropdown } from '../components/MadhabDropdown';
 import { QuickPreview } from '../components/QuickPreview';
+import { appTypography } from '../constants/theme';
 
 const heirCategories = [
   {
@@ -219,37 +220,36 @@ const CalculatorScreen: React.FC = () => {
       <ScrollView style={styles.scrollView}>
         {/* Header */}
         <Surface style={styles.header} elevation={2}>
-          <Text variant="headlineMedium" style={styles.headerTitle}>
+          <Text style={[appTypography.headlineMedium, styles.headerTitle]}>
             ⚖️ حاسبة المواريث
           </Text>
-          <Text variant="bodyMedium" style={styles.headerSubtitle}>
+          <Text style={[appTypography.bodyMedium, styles.headerSubtitle]}>
             النظام الاحترافي المتكامل - الإصدار 5.0
           </Text>
         </Surface>
 
-        {/* Madhab Selection */}
+        {/* Madhab Selection - UPDATED WITH DROPDOWN */}
         <Card style={styles.card}>
           <Card.Title
             title="المذهب الفقهي"
             subtitle="اختر المذهب المناسب"
             left={props => <Text {...props} style={styles.cardIcon}>🕌</Text>}
+            titleStyle={appTypography.titleLarge}
+            subtitleStyle={appTypography.bodyMedium}
           />
           <Card.Content>
-            <View style={styles.madhabContainer}>
-              {(Object.keys(FIQH_DATABASE.madhabs) as MadhabType[]).map(madhab => (
-                <MadhabCard
-                  key={madhab}
-                  madhab={madhab}
-                  isSelected={currentMadhab === madhab}
-                  onSelect={() => setCurrentMadhab(madhab)}
-                />
-              ))}
-            </View>
+            <MadhabDropdown
+              selectedMadhab={currentMadhab}
+              onSelect={setCurrentMadhab}
+            />
+            
             <Surface style={[styles.madhabInfo, { backgroundColor: `${madhabConfig.color}15` }]}>
-              <Text style={[styles.madhabInfoTitle, { color: madhabConfig.color }]}>
+              <Text style={[appTypography.titleMedium, styles.madhabInfoTitle, { color: madhabConfig.color }]}>
                 {madhabConfig.icon} المذهب {madhabConfig.name}
               </Text>
-              <Text style={styles.madhabInfoDesc}>{madhabConfig.description}</Text>
+              <Text style={[appTypography.bodyMedium, styles.madhabInfoDesc]}>
+                {madhabConfig.description}
+              </Text>
             </Surface>
           </Card.Content>
         </Card>
@@ -260,6 +260,8 @@ const CalculatorScreen: React.FC = () => {
             title="بيانات التركة والخصومات"
             subtitle="أدخل قيمة التركة والخصومات"
             left={props => <Text {...props} style={styles.cardIcon}>💰</Text>}
+            titleStyle={appTypography.titleLarge}
+            subtitleStyle={appTypography.bodyMedium}
           />
           <Card.Content>
             <TextInput
@@ -271,7 +273,7 @@ const CalculatorScreen: React.FC = () => {
               style={styles.input}
               right={<TextInput.Affix text="ر.س" />}
             />
-            <HelperText type="info">قيمة جميع الممتلكات</HelperText>
+            <HelperText type="info" style={appTypography.bodySmall}>قيمة جميع الممتلكات</HelperText>
 
             <View style={styles.rowInputs}>
               <TextInput
@@ -301,10 +303,10 @@ const CalculatorScreen: React.FC = () => {
               style={styles.input}
               right={<TextInput.Affix text="≤ ⅓" />}
             />
-            <HelperText type="info">≤ ثلث الباقي</HelperText>
+            <HelperText type="info" style={appTypography.bodySmall}>≤ ثلث الباقي</HelperText>
 
             <Surface style={styles.notice}>
-              <Text style={styles.noticeText}>
+              <Text style={[appTypography.bodySmall, styles.noticeText]}>
                 ⚠️ ترتيب الحقوق الشرعي: ١. تكاليف التجهيز ← ٢. سداد الديون ← ٣. الوصية (≤ ⅓) ← ٤. الإرث
               </Text>
             </Surface>
@@ -320,6 +322,8 @@ const CalculatorScreen: React.FC = () => {
             title="تحديد الورثة"
             subtitle="أدخل عدد الورثة في كل فئة"
             left={props => <Text {...props} style={styles.cardIcon}>👥</Text>}
+            titleStyle={appTypography.titleLarge}
+            subtitleStyle={appTypography.bodyMedium}
           />
           <Card.Content>
             {/* Quick Tests Menu */}
@@ -332,6 +336,7 @@ const CalculatorScreen: React.FC = () => {
                   onPress={() => setMenuVisible(true)}
                   icon="lightning-bolt"
                   style={styles.quickTestButton}
+                  labelStyle={appTypography.labelLarge}
                 >
                   حالات اختبار سريعة
                 </Button>
@@ -345,6 +350,7 @@ const CalculatorScreen: React.FC = () => {
                     setMenuVisible(false);
                   }}
                   title={test.label}
+                  titleStyle={appTypography.bodyLarge}
                 />
               ))}
             </Menu>
@@ -357,6 +363,7 @@ const CalculatorScreen: React.FC = () => {
                   onPress={() => toggleCategory(category.title)}
                   icon={expandedCategories.includes(category.title) ? 'chevron-up' : 'chevron-down'}
                   style={styles.categoryButton}
+                  labelStyle={appTypography.bodyLarge}
                 >
                   {category.title}
                 </Button>
@@ -389,7 +396,7 @@ const CalculatorScreen: React.FC = () => {
             onPress={handleCalculate}
             icon="calculator"
             style={[styles.button, styles.calculateButton]}
-            labelStyle={styles.buttonLabel}
+            labelStyle={[appTypography.labelLarge, styles.buttonLabel]}
           >
             احسب المواريث
           </Button>
@@ -400,6 +407,7 @@ const CalculatorScreen: React.FC = () => {
               onPress={handleValidate}
               icon="check-circle"
               style={[styles.button, styles.secondaryButton]}
+              labelStyle={appTypography.labelLarge}
             >
               تحقق
             </Button>
@@ -409,6 +417,7 @@ const CalculatorScreen: React.FC = () => {
               icon="refresh"
               style={[styles.button, styles.secondaryButton]}
               textColor="#ef4444"
+              labelStyle={appTypography.labelLarge}
             >
               إعادة
             </Button>
@@ -436,7 +445,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#fff',
-    fontWeight: 'bold',
     textAlign: 'center'
   },
   headerSubtitle: {
@@ -451,25 +459,17 @@ const styles = StyleSheet.create({
   cardIcon: {
     fontSize: 24
   },
-  madhabContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 12
-  },
   madhabInfo: {
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e2e8f0'
+    borderColor: '#e2e8f0',
+    marginTop: 12
   },
   madhabInfoTitle: {
-    fontWeight: 'bold',
-    fontSize: 14,
     marginBottom: 4
   },
   madhabInfoDesc: {
-    fontSize: 12,
     color: '#64748b'
   },
   input: {
@@ -490,7 +490,6 @@ const styles = StyleSheet.create({
     marginTop: 8
   },
   noticeText: {
-    fontSize: 12,
     color: '#92400e'
   },
   quickTestButton: {
@@ -519,7 +518,6 @@ const styles = StyleSheet.create({
     borderRadius: 8
   },
   buttonLabel: {
-    fontSize: 16,
     fontWeight: 'bold'
   },
   calculateButton: {

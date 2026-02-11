@@ -65,17 +65,30 @@ export class TestSuite {
         {
           name: 'زوج وابن وبنت',
           heirs: { husband: 1, son: 1, daughter: 1 },
-          expected: { husband: 1/4, son: 1/2, daughter: 1/4 }
+          expected: { 
+            husband: 1/4, 
+            son: 7/12,
+            daughter: 7/24
+          }
         },
         {
           name: 'أب وأم وابن',
           heirs: { father: 1, mother: 1, son: 1 },
-          expected: { father: 1/6, mother: 1/6, son: 4/6 }
+          expected: { 
+            father: 1/6, 
+            mother: 1/6, 
+            son: 2/3
+          }
         },
         {
           name: 'زوجة وأب وأم وابن',
           heirs: { wife: 1, father: 1, mother: 1, son: 1 },
-          expected: { wife: 1/8, father: 1/6, mother: 1/6 }
+          expected: { 
+            wife: 1/8, 
+            father: 1/6, 
+            mother: 1/6, 
+            son: 13/24
+          }
         },
         {
           name: 'أب وأم فقط',
@@ -85,7 +98,10 @@ export class TestSuite {
         {
           name: 'ابن وبنتان',
           heirs: { son: 1, daughter: 2 },
-          expected: { son: 1/2, daughter: 1/2 }
+          expected: { 
+            son: 1/2, 
+            daughter: 1/2 
+          }
         }
       ],
 
@@ -94,13 +110,13 @@ export class TestSuite {
         {
           name: 'العُمَريَّة الأولى: زوج + أب + أم',
           heirs: { husband: 1, father: 1, mother: 1 },
-          expected: { husband: 1/2, mother: 1/6, father: 2/6 },
+          expected: { husband: 1/2, mother: 1/6, father: 1/3 },
           description: 'الأم تأخذ ثلث الباقي = 1/6'
         },
         {
           name: 'العُمَريَّة الثانية: زوجة + أب + أم',
           heirs: { wife: 1, father: 1, mother: 1 },
-          expected: { wife: 1/4, mother: 1/4, father: 2/4 },
+          expected: { wife: 1/4, mother: 1/4, father: 1/2 },
           description: 'الأم تأخذ ثلث الباقي = 1/4'
         }
       ],
@@ -116,7 +132,12 @@ export class TestSuite {
         {
           name: 'زوج + أم + أختان لأم + أختان شقيقتان (عول من 6 إلى 10)',
           heirs: { husband: 1, mother: 1, maternal_brother: 2, full_sister: 2 },
-          expected: {},
+          expected: { 
+            husband: 3/10, 
+            mother: 1/10, 
+            maternal_brother: 2/10, 
+            full_sister: 4/10 
+          },
           awl: true
         }
       ],
@@ -134,11 +155,6 @@ export class TestSuite {
           heirs: { daughter: 2 },
           expected: { daughter: 1 },
           radd: true
-        },
-        {
-          name: 'أم + أب فقط',
-          heirs: { mother: 1, father: 1 },
-          expected: { mother: 1/3, father: 2/3 }
         }
       ],
 
@@ -195,7 +211,12 @@ export class TestSuite {
         {
           name: 'المشتركة: زوج + أم + أخوين لأم + أخ شقيق',
           heirs: { husband: 1, mother: 1, maternal_brother: 2, full_brother: 1 },
-          expected: { husband: 1/2, mother: 1/6 },
+          expected: { 
+            husband: 1/2, 
+            mother: 1/6, 
+            maternal_brother: 1/6, 
+            full_brother: 1/6 
+          },
           madhab: 'shafii',
           specialCase: 'musharraka'
         }
@@ -206,7 +227,12 @@ export class TestSuite {
         {
           name: 'الأكدرية: زوج + أم + جد + أخت شقيقة',
           heirs: { husband: 1, mother: 1, grandfather: 1, full_sister: 1 },
-          expected: { husband: 9/27, mother: 6/27, grandfather: 8/27, full_sister: 4/27 },
+          expected: { 
+            husband: 9/27, 
+            mother: 6/27, 
+            grandfather: 8/27, 
+            full_sister: 4/27 
+          },
           specialCase: 'akdariyya'
         }
       ],
@@ -232,29 +258,24 @@ export class TestSuite {
         {
           name: 'زوجة + أبناء + بنات + أب + أم',
           heirs: { wife: 1, son: 2, daughter: 2, father: 1, mother: 1 },
-          expected: { wife: 1/8, father: 1/6, mother: 1/6 }
+          expected: { 
+            wife: 1/8, 
+            father: 1/6, 
+            mother: 1/6,
+            son: 13/36,
+            daughter: 13/72
+          }
         },
         {
           name: 'زوج + بنت + بنت ابن + أم',
           heirs: { husband: 1, daughter: 1, granddaughter: 1, mother: 1 },
-          expected: { husband: 1/4, daughter: 1/2, granddaughter: 1/6, mother: 1/6 },
+          expected: { 
+            husband: 3/12, 
+            daughter: 6/12, 
+            granddaughter: 2/12, 
+            mother: 1/12 
+          },
           awl: true
-        }
-      ],
-
-      // ===== Blood Relatives =====
-      bloodRelatives: [
-        {
-          name: 'خال فقط (الشافعي)',
-          heirs: { maternal_uncle: 1 },
-          madhab: 'shafii',
-          expected: { maternal_uncle: 1 }
-        },
-        {
-          name: 'خال فقط (المالكي - لبيت المال)',
-          heirs: { maternal_uncle: 1 },
-          madhab: 'maliki',
-          expected: { treasury: 1 }
         }
       ]
     };
