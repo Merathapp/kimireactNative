@@ -18,7 +18,7 @@ interface HeirInputProps {
 }
 
 export const HeirInput: React.FC<HeirInputProps> = ({
-  heirKey,
+  heirKey: _heirKey,
   label,
   description,
   max,
@@ -59,7 +59,7 @@ export const HeirInput: React.FC<HeirInputProps> = ({
           <Text style={[styles.label, isActive && styles.activeLabel]}>
             {label}
           </Text>
-          <HelperText style={styles.description}>
+          <HelperText type="info" style={styles.description}>
             {description}
           </HelperText>
         </View>

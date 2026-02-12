@@ -3,12 +3,11 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {
   Text,
   Card,
-  Button,
   IconButton,
   Surface,
   Chip,
   Divider
-} from 'react-native-paper';
+} from 'react-native-paper'; // REMOVED Button
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { useApp } from '../context/AppContext';

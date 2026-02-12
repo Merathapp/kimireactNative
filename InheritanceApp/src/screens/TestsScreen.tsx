@@ -4,14 +4,13 @@ import {
   Text,
   Card,
   Button,
-  Chip,
   Surface,
   ActivityIndicator,
   Divider,
   Menu
-} from 'react-native-paper';
+} from 'react-native-paper'; // REMOVED Chip
 import { useApp } from '../context/AppContext';
-import { testSuite, TestResult, TestSuiteResults } from '../utils/TestSuite';
+import { testSuite, TestSuiteResults } from '../utils/TestSuite'; // REMOVED TestResult
 import { MadhabType, FIQH_DATABASE } from '../constants/FiqhDatabase';
 
 const categories = [
@@ -54,7 +53,8 @@ const TestsScreen: React.FC = () => {
     );
   };
 
-  const getStatusColor = (passed: boolean) => passed ? '#10b981' : '#ef4444';
+  // REMOVED unused getStatusColor function
+
   const getStatusBg = (passed: boolean) => passed ? '#dcfce7' : '#fee2e2';
 
   return (

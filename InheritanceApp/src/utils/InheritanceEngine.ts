@@ -893,8 +893,9 @@ export class InheritanceEngine {
       this.addStep('العصبات', 'لا باقي للعصبات (المسألة عادلة أو عائلة)');
       return asabaShares;
     }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-    let asabaFound = false;
+let asabaFound = false; // Kept for reference
     const asabaList: { key: string; name: string; weight: number; addToExisting?: boolean }[] = [];
 
     // ===== 1. Son (asaba by self) =====
@@ -946,9 +947,10 @@ export class InheritanceEngine {
                           (h.paternal_brother || 0) * 2 + (h.paternal_sister || 0);
         const grandfatherByMuqasama = new Fraction(2, totalHeads);
         const grandfatherByThird = Fraction.THIRD;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
         let bestOption = grandfatherByMuqasama;
-        let bestReason = 'المقاسمة';
+let bestReason = 'المقاسمة'; // Kept for reference
 
         if (grandfatherByThird.greaterThan(bestOption)) {
           bestOption = grandfatherByThird;

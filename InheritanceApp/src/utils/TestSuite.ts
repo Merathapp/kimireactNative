@@ -1,4 +1,5 @@
-import { InheritanceEngine, Estate, Heirs, MadhabType } from './InheritanceEngine';
+import { InheritanceEngine, Estate, Heirs } from './InheritanceEngine';
+import { MadhabType } from '../constants/FiqhDatabase';
 
 /**
  * Test Case Interface

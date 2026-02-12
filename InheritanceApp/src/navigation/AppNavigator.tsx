@@ -36,7 +36,7 @@ const AppNavigator = () => {
           fontSize: 18,
         },
         headerBackTitleVisible: false,
-        headerTitleAlign: isRTL ? 'right' : 'left',
+       headerTitleAlign: (isRTL ? 'right' : 'left') as 'left' | 'center' | undefined,
       }}
     >
       <Stack.Screen 

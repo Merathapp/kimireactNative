@@ -118,6 +118,7 @@ export const typography = {
 
 // App-specific semantic typography
 export const appTypography = {
+  // Original semantic names (KEEP ALL OF THESE)
   screenTitle: typography.headlineMedium,
   sectionTitle: typography.titleLarge,
   cardTitle: typography.titleMedium,
@@ -131,6 +132,16 @@ export const appTypography = {
     ...typography.bodySmall,
     color: '#B00020',
   },
+  
+  // ===== ADDED ALIASES FOR DIRECT STYLE ACCESS =====
+  // These match what components are trying to use
+  headlineMedium: typography.headlineMedium,
+  bodyMedium: typography.bodyMedium,
+  titleLarge: typography.titleLarge,
+  titleMedium: typography.titleMedium,
+  bodyLarge: typography.bodyLarge,
+  labelLarge: typography.labelLarge,
+  bodySmall: typography.bodySmall,
 };
 
 export default {

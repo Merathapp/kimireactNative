@@ -11,15 +11,17 @@ import {
   Button,
   Chip,
   DataTable,
-  Divider,
   Surface,
-  IconButton,
-  ProgressBar
+  IconButton
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+
+// IMPORT ADDED TYPES
+import { HeirShare } from '../utils/HeirShare';
+import { BlockedHeir, SpecialCase, CalculationStep } from '../utils/InheritanceEngine';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -70,13 +72,14 @@ const ResultsScreen: React.FC = () => {
     confidence
   } = lastResult;
 
-  const chartData = shares?.map((share, index) => ({
+  // FIXED: Added proper types
+  const chartData = (shares?.map((share: HeirShare, index: number) => ({
     name: share.name,
     amount: share.amount,
     color: colors[index % colors.length],
     legendFontColor: '#64748b',
     legendFontSize: 12
-  })) || [];
+  })) || []);
 
   const handleShare = async () => {
     let text = `نتائج حساب الميراث - المذهب ${madhhabName}\n`;
@@ -87,7 +90,8 @@ const ResultsScreen: React.FC = () => {
     if (awlApplied) text += `(عالت من ${asl})\n`;
     text += `\nالأنصبة:\n`;
 
-    shares?.forEach(s => {
+    // FIXED: Added proper type
+    shares?.forEach((s: HeirShare) => {
       text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString()}\n`;
       if (s.count > 1) {
         text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString()})\n`;
@@ -96,7 +100,8 @@ const ResultsScreen: React.FC = () => {
 
     if (specialCases && specialCases.length > 0) {
       text += `\nحالات خاصة:\n`;
-      specialCases.forEach(c => {
+      // FIXED: Added proper type
+      specialCases.forEach((c: SpecialCase) => {
         text += `• ${c.name}: ${c.description}\n`;
       });
     }
@@ -196,7 +201,7 @@ const ResultsScreen: React.FC = () => {
             titleStyle={{ color: '#92400e' }}
           />
           <Card.Content>
-            {warnings.map((warning, index) => (
+            {warnings.map((warning: string, index: number) => (
               <Text key={index} style={styles.warningText}>• {warning}</Text>
             ))}
           </Card.Content>
@@ -211,7 +216,7 @@ const ResultsScreen: React.FC = () => {
             titleStyle={{ color: '#1e40af' }}
           />
           <Card.Content>
-            {specialCases.map((c, index) => (
+            {specialCases.map((c: SpecialCase, index: number) => (
               <View key={index} style={styles.specialCase}>
                 <Text style={styles.specialCaseName}>{c.name}</Text>
                 <Text style={styles.specialCaseDesc}>{c.description}</Text>
@@ -229,7 +234,7 @@ const ResultsScreen: React.FC = () => {
             titleStyle={{ color: '#065f46' }}
           />
           <Card.Content>
-            {madhhabNotes.map((note, index) => (
+            {madhhabNotes.map((note: string, index: number) => (
               <Text key={index} style={styles.noteText}>• {note}</Text>
             ))}
           </Card.Content>
@@ -245,7 +250,7 @@ const ResultsScreen: React.FC = () => {
           />
           <Card.Content>
             <View style={styles.blockedChips}>
-              {blockedHeirs.map((b, index) => (
+              {blockedHeirs.map((b: BlockedHeir, index: number) => (
                 <Chip
                   key={index}
                   style={styles.blockedChip}
@@ -277,7 +282,7 @@ const ResultsScreen: React.FC = () => {
               absolute
             />
             <View style={styles.legend}>
-              {shares?.map((share, index) => (
+              {shares?.map((share: HeirShare, index: number) => (
                 <View key={share.key} style={styles.legendItem}>
                   <View style={[styles.legendColor, { backgroundColor: colors[index % colors.length] }]} />
                   <Text style={styles.legendText}>
@@ -302,7 +307,7 @@ const ResultsScreen: React.FC = () => {
               <DataTable.Title numeric>المبلغ</DataTable.Title>
             </DataTable.Header>
 
-            {shares?.map((share) => (
+            {shares?.map((share: HeirShare) => (
               <DataTable.Row key={share.key}>
                 <DataTable.Cell>
                   <View>
@@ -331,7 +336,7 @@ const ResultsScreen: React.FC = () => {
         <Card style={styles.card}>
           <Card.Title title="📝 خطوات الحساب" />
           <Card.Content>
-            {steps.map((step, index) => (
+            {steps.map((step: CalculationStep, index: number) => (
               <View key={index} style={styles.step}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>{index + 1}</Text>

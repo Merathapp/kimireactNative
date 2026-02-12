@@ -12,9 +12,6 @@ import {
   Card,
   Button,
   TextInput,
-  SegmentedButtons,
-  Chip,
-  IconButton,
   Divider,
   Menu,
   HelperText,
@@ -24,7 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import { InheritanceEngine } from '../utils/InheritanceEngine';
 import { validateAll } from '../utils/Validation';
-import { FIQH_DATABASE, MadhabType, getMadhabConfig } from '../constants/FiqhDatabase';
+import { getMadhabConfig } from '../constants/FiqhDatabase';
 import { HeirInput } from '../components/HeirInput';
 import { MadhabDropdown } from '../components/MadhabDropdown';
 import { QuickPreview } from '../components/QuickPreview';
@@ -98,7 +95,8 @@ const heirCategories = [
   }
 ];
 
-const quickTests = [
+// FIXED: Added proper TypeScript type for quickTests
+const quickTests: { key: string; label: string; heirs: Record<string, number> }[] = [
   { key: 'basic', label: 'زوج + بنت', heirs: { husband: 1, daughter: 1 } },
   { key: 'awl', label: 'عول: زوج + أختان + أم', heirs: { husband: 1, full_sister: 2, mother: 1 } },
   { key: 'radd', label: 'رد: أم + بنت', heirs: { mother: 1, daughter: 1 } },

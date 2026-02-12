@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Menu, Button, Text, useTheme } from 'react-native-paper';
+import { Menu, Button, Text } from 'react-native-paper';
 import { MadhabType, getMadhabConfig } from '../constants/FiqhDatabase';
 import { appTypography } from '../constants/theme';
 
@@ -11,7 +11,6 @@ interface Props {
 
 export const MadhabDropdown: React.FC<Props> = ({ selectedMadhab, onSelect }) => {
   const [visible, setVisible] = useState(false);
-  const theme = useTheme();
   
   const madhabs: MadhabType[] = ['shafii', 'hanafi', 'maliki', 'hanbali'];
 
