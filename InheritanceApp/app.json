@@ -37,13 +37,27 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-file-system"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "a524145d-db5e-41df-ac7b-94b4334a3cf5"
-      }
-    },
-    "owner": "redme9phone"
+      "expo-file-system",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.9.0",
+            "packagingOptions": {
+              "merge": {
+                "AndroidManifest.xml": {
+                  "remove": [
+                    "package"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    ]
   }
 }
