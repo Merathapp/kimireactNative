@@ -3,13 +3,13 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppProvider, useApp } from './src/context/AppContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { DefaultTheme, DarkTheme } from 'react-native-paper';
+import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { I18nManager, View, Text, StyleSheet } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 
 // Custom theme with proper typography
 const getTheme = (isDark: boolean) => {
-  const baseTheme = isDark ? DarkTheme : DefaultTheme;
+  const baseTheme = isDark ? MD3DarkTheme : MD3LightTheme;
   return {
     ...baseTheme,
     fonts: {
