@@ -1,17 +1,49 @@
 import React from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppProvider, useApp } from './src/context/AppContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { I18nManager, View, Text, StyleSheet } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
+import { colors, text, bg } from './src/constants/colors';
 
-// Custom theme with proper typography
+// Professional Material Design 3 Theme
 const getTheme = (isDark: boolean) => {
   const baseTheme = isDark ? MD3DarkTheme : MD3LightTheme;
+  
   return {
     ...baseTheme,
+    colors: {
+      ...baseTheme.colors,
+      primary: colors.primary[500],
+      primaryContainer: colors.primary[100],
+      onPrimaryContainer: colors.primary[900],
+      secondary: colors.secondary[500],
+      secondaryContainer: colors.secondary[100],
+      onSecondaryContainer: colors.secondary[900],
+      tertiary: colors.neutral[700],
+      tertiaryContainer: colors.neutral[200],
+      onTertiaryContainer: colors.neutral[900],
+      background: isDark ? colors.neutral[900] : colors.background.primary,
+      surface: isDark ? colors.neutral[800] : colors.background.primary,
+      surfaceVariant: isDark ? colors.neutral[700] : colors.background.secondary,
+      surfaceDisabled: isDark ? colors.neutral[700] + '80' : colors.neutral[200] + '80',
+      error: colors.error,
+      errorContainer: '#fee2e2',
+      onErrorContainer: '#991b1b',
+      warning: colors.warning,
+      warningContainer: '#fef3c7',
+      onWarningContainer: '#92400e',
+      success: colors.success,
+      successContainer: '#dcfce7',
+      onSuccessContainer: '#166534',
+      info: colors.info,
+      infoContainer: '#dbeafe',
+      onInfoContainer: '#1e40af',
+      outline: colors.border.default,
+      outlineVariant: colors.border.light,
+      scrim: 'rgba(0, 0, 0, 0.4)',
+    },
     fonts: {
       ...baseTheme.fonts,
       regular: {
@@ -31,22 +63,12 @@ const getTheme = (isDark: boolean) => {
         fontWeight: '100' as const,
       },
     },
-    colors: {
-      ...baseTheme.colors,
-      primary: '#4f46e5',
-      accent: '#818cf8',
+    roundness: 12,
+    animation: {
+      scale: 1.0,
     },
   };
 };
-
-// Error Fallback Component
-const ErrorFallback = ({ error }: { error: Error }) => (
-  <View style={styles.errorContainer}>
-    <Text style={styles.errorTitle}>⚠️ خطأ في التطبيق</Text>
-    <Text style={styles.errorMessage}>{error.message}</Text>
-    <Text style={styles.errorStack}>{error.stack}</Text>
-  </View>
-);
 
 const AppContent = () => {
   const { isDarkMode, language } = useApp();
@@ -65,7 +87,12 @@ const AppContent = () => {
     );
   } catch (error) {
     console.error('🚨 Navigation Error:', error);
-    return <ErrorFallback error={error as Error} />;
+    return (
+      <View style={[styles.errorContainer, { backgroundColor: bg.primary }]}>
+        <Text style={styles.errorTitle}>⚠️ خطأ في التطبيق</Text>
+        <Text style={styles.errorMessage}>{error.message}</Text>
+      </View>
+    );
   }
 };
 
@@ -85,26 +112,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
   },
   errorTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ef4444',
+    color: colors.error,
     marginBottom: 16,
   },
   errorMessage: {
     fontSize: 16,
-    color: '#1e293b',
-    marginBottom: 12,
+    color: text.primary,
     textAlign: 'center',
-  },
-  errorStack: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 8,
-    padding: 12,
-    backgroundColor: '#f1f5f9',
-    borderRadius: 8,
   },
 });

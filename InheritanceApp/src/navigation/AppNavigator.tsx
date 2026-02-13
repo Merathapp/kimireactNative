@@ -1,20 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useApp } from '../context/AppContext';
-import CalculatorScreen from '../screens/CalculatorScreen';
+import MainTabNavigator from './MainTabNavigator';
 import ResultsScreen from '../screens/ResultsScreen';
-import RulesScreen from '../screens/RulesScreen';
-import CompareScreen from '../screens/CompareScreen';
-import AuditScreen from '../screens/AuditScreen';
-import TestsScreen from '../screens/TestsScreen';
+import { colors } from '../constants/colors';
 
 export type RootStackParamList = {
-  Calculator: undefined;
+  MainTabs: undefined;
   Results: undefined;
-  Rules: undefined;
-  Compare: undefined;
-  Audit: undefined;
-  Tests: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -25,61 +18,35 @@ const AppNavigator = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName="Calculator"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#1e293b',
+          backgroundColor: colors.neutral[800],
+          elevation: 4,
+          shadowColor: colors.shadow.md,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
-        headerTintColor: '#fff',
+        headerTintColor: colors.text.inverse,
         headerTitleStyle: {
           fontFamily: 'sans-serif-medium',
           fontSize: 18,
+          fontWeight: '600',
         },
         headerBackTitleVisible: false,
-       headerTitleAlign: (isRTL ? 'right' : 'left') as 'left' | 'center' | undefined,
+        headerTitleAlign: isRTL ? 'right' : 'left',
       }}
     >
       <Stack.Screen 
-        name="Calculator" 
-        component={CalculatorScreen} 
-        options={{ 
-          title: isRTL ? 'حاسبة المواريث' : 'Inheritance Calculator',
-          headerLeft: () => null
-        }}
+        name="MainTabs" 
+        component={MainTabNavigator} 
+        options={{ headerShown: false }}
       />
       <Stack.Screen 
         name="Results" 
         component={ResultsScreen} 
         options={{ 
-          title: isRTL ? 'نتائج الحساب' : 'Results'
-        }}
-      />
-      <Stack.Screen 
-        name="Rules" 
-        component={RulesScreen} 
-        options={{ 
-          title: isRTL ? 'قواعد المواريث' : 'Rules'
-        }}
-      />
-      <Stack.Screen 
-        name="Compare" 
-        component={CompareScreen} 
-        options={{ 
-          title: isRTL ? 'مقارنة المذاهب' : 'Compare Madhabs'
-        }}
-      />
-      <Stack.Screen 
-        name="Audit" 
-        component={AuditScreen} 
-        options={{ 
-          title: isRTL ? 'سجل المراجعة' : 'Audit Log'
-        }}
-      />
-      <Stack.Screen 
-        name="Tests" 
-        component={TestsScreen} 
-        options={{ 
-          title: isRTL ? 'اختبارات النظام' : 'Test Suite'
+          title: isRTL ? 'نتائج الحساب' : 'Results',
         }}
       />
     </Stack.Navigator>
