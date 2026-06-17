@@ -29,3 +29,16 @@ npm-debug.log*
 .expo/
 dist/
 web-build/
+
+# Generated native projects (expo prebuild)
+android/
+ios/
+
+# Signing keys
+*.keystore
+*.jks
+
+# Gradle
+.gradle/
+*.hprof
+*.log

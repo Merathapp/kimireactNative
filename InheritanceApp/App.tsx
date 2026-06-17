@@ -85,12 +85,13 @@ const AppContent = () => {
         </NavigationContainer>
       </PaperProvider>
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('🚨 Navigation Error:', error);
+    const message = error instanceof Error ? error.message : 'خطأ غير معروف';
     return (
       <View style={[styles.errorContainer, { backgroundColor: bg.primary }]}>
         <Text style={styles.errorTitle}>⚠️ خطأ في التطبيق</Text>
-        <Text style={styles.errorMessage}>{error.message}</Text>
+        <Text style={styles.errorMessage}>{message}</Text>
       </View>
     );
   }

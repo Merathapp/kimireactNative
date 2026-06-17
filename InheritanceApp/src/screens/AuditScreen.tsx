@@ -42,7 +42,7 @@ const AuditScreen: React.FC = () => {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
       }
-    } catch (error) {
+    } catch {
       Alert.alert('خطأ', 'فشل تصدير السجل');
     }
   };

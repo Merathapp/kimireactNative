@@ -291,7 +291,7 @@ export class TestSuite {
         const testMadhab = test.madhab || madhab;
         const result = await this.runSingleTest(test, category, testMadhab);
         results.push(result);
-        result.passed ? passed++ : failed++;
+        if (result.passed) passed++; else failed++;
       }
     }
 
@@ -410,7 +410,7 @@ export class TestSuite {
       const testMadhab = test.madhab || madhab;
       const result = await this.runSingleTest(test, category, testMadhab);
       results.push(result);
-      result.passed ? passed++ : failed++;
+      if (result.passed) passed++; else failed++;
     }
 
     return {

@@ -896,6 +896,7 @@ export class InheritanceEngine {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 let asabaFound = false; // Kept for reference
+    void asabaFound;
     const asabaList: { key: string; name: string; weight: number; addToExisting?: boolean }[] = [];
 
     // ===== 1. Son (asaba by self) =====
@@ -951,6 +952,7 @@ let asabaFound = false; // Kept for reference
 
         let bestOption = grandfatherByMuqasama;
 let bestReason = 'المقاسمة'; // Kept for reference
+        void bestReason;
 
         if (grandfatherByThird.greaterThan(bestOption)) {
           bestOption = grandfatherByThird;

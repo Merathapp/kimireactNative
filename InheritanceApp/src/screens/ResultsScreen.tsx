@@ -112,7 +112,7 @@ const ResultsScreen: React.FC = () => {
         title: 'نتائج حساب الميراث'
       });
       addAuditLog('مشاركة النتائج', 'success', 'تمت مشاركة النتائج');
-    } catch (error) {
+    } catch {
       addAuditLog('مشاركة النتائج', 'error', 'فشلت المشاركة');
     }
   };
