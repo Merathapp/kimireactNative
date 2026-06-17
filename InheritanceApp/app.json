@@ -44,6 +44,7 @@
           "android": {
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
+            "newArchEnabled": false,
             "buildToolsVersion": "34.0.0",
             "kotlinVersion": "1.9.0",
             "packagingOptions": {
