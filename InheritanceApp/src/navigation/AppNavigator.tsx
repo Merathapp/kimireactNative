@@ -1,4 +1,3 @@
-import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useApp } from '../context/AppContext';
 import MainTabNavigator from './MainTabNavigator';

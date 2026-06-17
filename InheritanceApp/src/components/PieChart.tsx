@@ -27,14 +27,13 @@ const PieChart: React.FC<PieChartProps> = ({ data, width, height, accessor }) =>
   const cx = width / 2;
   const cy = height / 2;
   const radius = Math.min(cx, cy) - 10;
-  let currentAngle = -Math.PI / 2;
 
-  const slices = data.map((item) => {
+  const slices = data.reduce<{ path: string; color: string; key: string; endAngle: number }[]>((acc, item, i) => {
     const value = (item as any)[accessor];
     const sliceAngle = (value / total) * 2 * Math.PI;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + sliceAngle;
-    currentAngle = endAngle;
+    const prevAngle = i === 0 ? -Math.PI / 2 : acc[i - 1].endAngle;
+    const startAngle = prevAngle;
+    const endAngle = startAngle + sliceAngle;
 
     const x1 = cx + radius * Math.cos(startAngle);
     const y1 = cy + radius * Math.sin(startAngle);
@@ -49,8 +48,9 @@ const PieChart: React.FC<PieChartProps> = ({ data, width, height, accessor }) =>
       'Z',
     ].join(' ');
 
-    return { path: pathData, color: item.color, key: item.name };
-  });
+    acc.push({ path: pathData, color: item.color, key: item.name, endAngle });
+    return acc;
+  }, []);
 
   return (
     <View style={{ alignItems: 'center' }}>

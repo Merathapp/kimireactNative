@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider as PaperProvider, MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppProvider, useApp } from './src/context/AppContext';
@@ -6,6 +5,31 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { I18nManager, View, Text, StyleSheet } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { colors, text, bg } from './src/constants/colors';
+import { Component, type ReactNode, type ErrorInfo } from 'react';
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, _info: ErrorInfo) {
+    console.error('🚨 Navigation Error:', error);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={[styles.errorContainer, { backgroundColor: bg.primary }]}>
+          <Text style={styles.errorTitle}>⚠️ خطأ في التطبيق</Text>
+          <Text style={styles.errorMessage}>{this.state.error.message}</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Professional Material Design 3 Theme
 const getTheme = (isDark: boolean) => {
@@ -77,31 +101,22 @@ const AppContent = () => {
   I18nManager.allowRTL(language === 'ar');
   I18nManager.forceRTL(language === 'ar');
 
-  try {
-    return (
-      <PaperProvider theme={getTheme(isDarkMode)}>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-      </PaperProvider>
-    );
-  } catch (error: unknown) {
-    console.error('🚨 Navigation Error:', error);
-    const message = error instanceof Error ? error.message : 'خطأ غير معروف';
-    return (
-      <View style={[styles.errorContainer, { backgroundColor: bg.primary }]}>
-        <Text style={styles.errorTitle}>⚠️ خطأ في التطبيق</Text>
-        <Text style={styles.errorMessage}>{message}</Text>
-      </View>
-    );
-  }
+  return (
+    <PaperProvider theme={getTheme(isDarkMode)}>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </PaperProvider>
+  );
 };
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <AppContent />
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
       </AppProvider>
     </SafeAreaProvider>
   );

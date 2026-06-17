@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { typography, appTypography } from '../constants/theme';
 
@@ -38,6 +38,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentMadhab, setCurrentMadhab] = useState<MadhabType>('shafii');
   const [language, setLanguage] = useState<LanguageType>('ar');
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
+  const prevColorScheme = useRef(colorScheme);
+
+  useEffect(() => {
+    if (prevColorScheme.current !== colorScheme) {
+      prevColorScheme.current = colorScheme;
+      setIsDarkMode(colorScheme === 'dark');
+    }
+  }, [colorScheme]);
   const [estate, setEstate] = useState({
     total: 100000,
     funeral: 0,
@@ -47,10 +55,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [heirs, setHeirs] = useState<Record<string, number>>({});
   const [lastResult, setLastResult] = useState<any>(null);
   const [auditLog, setAuditLog] = useState<any[]>([]);
-
-  useEffect(() => {
-    setIsDarkMode(colorScheme === 'dark');
-  }, [colorScheme]);
 
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
