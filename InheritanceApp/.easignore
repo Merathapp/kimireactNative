@@ -14,6 +14,9 @@ node_modules/
 *.swp
 *.swo
 
+# Docs - not needed for builds
+*.md
+
 # OS files
 .DS_Store
 Thumbs.db
