@@ -8,7 +8,8 @@
 - **VersionCode:** 500
 - **License:** MIT
 - **Git Remote:** `https://github.com/Merathapp/kimireactNative`
-- **EAS Project ID:** `a524145d-db5e-41df-ac7b-94b4334a3cf5`
+- **EAS Project ID:** `2c2de43d-16e9-4c3f-88b6-be678d534494`
+- **EAS Owner:** `smartengineer`
 
 ## Tech Stack
 | Layer | Choice |
