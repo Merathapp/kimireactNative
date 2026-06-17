@@ -22,8 +22,6 @@
         "backgroundColor": "#4f46e5"
       },
       "permissions": [
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.INTERNET"
       ],
       "softwareKeyboardLayoutMode": "pan"
