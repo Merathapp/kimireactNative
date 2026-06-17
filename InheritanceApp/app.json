@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#4f46e5"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -27,8 +22,6 @@
         "backgroundColor": "#4f46e5"
       },
       "permissions": [
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.INTERNET"
       ],
       "softwareKeyboardLayoutMode": "pan"
@@ -42,19 +35,19 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0",
-            "kotlinVersion": "1.9.0",
-            "packagingOptions": {
-              "merge": [
-                "AndroidManifest.xml:package"
-              ]
-            }
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "2.0.21"
           }
         }
       ],
-      "expo-system-ui"
+      "expo-system-ui",
+      "expo-localization",
+      "expo-sharing",
+      "expo-splash-screen",
+      "expo-status-bar",
+      "expo-font"
     ],
     "extra": {
       "eas": {

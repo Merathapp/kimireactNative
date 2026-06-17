@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
-import { PieChart } from 'react-native-chart-kit';
+import PieChart from '../components/PieChart';
 import { Dimensions } from 'react-native';
 
 // IMPORT ADDED TYPES
@@ -273,13 +273,7 @@ const ResultsScreen: React.FC = () => {
               data={chartData}
               width={screenWidth - 48}
               height={200}
-              chartConfig={{
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              }}
               accessor="amount"
-              backgroundColor="transparent"
-              paddingLeft="0"
-              absolute
             />
             <View style={styles.legend}>
               {shares?.map((share: HeirShare, index: number) => (

@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
+    "ignoreDeprecations": "6.0",
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
