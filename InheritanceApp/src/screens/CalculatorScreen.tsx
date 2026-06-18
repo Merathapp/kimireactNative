@@ -123,11 +123,16 @@ const CalculatorScreen: React.FC = () => {
     setLastResult,
     addAuditLog,
     deceasedGender,
-    setDeceasedGender
+    setDeceasedGender,
+    hasPregnancy,
+    setHasPregnancy,
+    hasMissingHeir,
+    setHasMissingHeir
   } = useApp();
 
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['الأزواج', 'الأصول (الآباء والأجداد)']);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [calculating, setCalculating] = useState(false);
 
   const toggleCategory = (title: string) => {
     setExpandedCategories(prev =>
@@ -150,9 +155,10 @@ const CalculatorScreen: React.FC = () => {
       Alert.alert('تحذيرات', validation.warnings.join('\n') + '\n\nسيتم المتابعة مع التصحيح التلقائي.');
     }
 
+    setCalculating(true);
     try {
       const engine = new InheritanceEngine(currentMadhab, estate, heirs);
-      const result = engine.calculate();
+      const result = engine.calculate({ hasPregnancy, hasMissingHeir });
 
       if (result.success) {
         setLastResult(result);
@@ -167,6 +173,8 @@ const CalculatorScreen: React.FC = () => {
     } catch (error: any) {
       Alert.alert('خطأ', error.message);
       addAuditLog('حساب الميراث', 'error', error.message);
+    } finally {
+      setCalculating(false);
     }
   }, [estate, heirs, currentMadhab, navigation, setLastResult, addAuditLog]);
 
@@ -350,6 +358,39 @@ const CalculatorScreen: React.FC = () => {
           </Card.Content>
         </Card>
 
+        {/* Special Cases: Pregnancy / Missing Heir */}
+        <Card style={styles.card}>
+          <Card.Title
+            title="حالات خاصة"
+            left={props => <Text {...props} style={styles.cardIcon}>⚠️</Text>}
+            titleStyle={appTypography.titleLarge}
+          />
+          <Card.Content>
+            <View style={styles.switchRow}>
+              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>هناك حمل (امرأة حامل)</Text>
+              <Button
+                mode={hasPregnancy ? 'contained' : 'outlined'}
+                onPress={() => setHasPregnancy(!hasPregnancy)}
+                style={[styles.switchButton, hasPregnancy && { backgroundColor: '#f59e0b' }]}
+                labelStyle={appTypography.labelLarge}
+              >
+                {hasPregnancy ? 'نعم' : 'لا'}
+              </Button>
+            </View>
+            <View style={styles.switchRow}>
+              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>هناك مفقود (وارث مفقود)</Text>
+              <Button
+                mode={hasMissingHeir ? 'contained' : 'outlined'}
+                onPress={() => setHasMissingHeir(!hasMissingHeir)}
+                style={[styles.switchButton, hasMissingHeir && { backgroundColor: '#f59e0b' }]}
+                labelStyle={appTypography.labelLarge}
+              >
+                {hasMissingHeir ? 'نعم' : 'لا'}
+              </Button>
+            </View>
+          </Card.Content>
+        </Card>
+
         {/* Quick Preview */}
         <QuickPreview estate={estate} heirs={heirs} madhabName={madhabConfig.name} />
 
@@ -444,6 +485,8 @@ const CalculatorScreen: React.FC = () => {
             style={[styles.button, styles.calculateButton]}
             labelStyle={[appTypography.labelLarge, styles.buttonLabel]}
             accessibilityLabel="حساب المواريث"
+            loading={calculating}
+            disabled={calculating}
           >
             احسب المواريث
           </Button>
@@ -597,6 +640,20 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 40
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 8
+  },
+  switchLabel: {
+    flex: 1,
+    marginRight: 12
+  },
+  switchButton: {
+    borderRadius: 8,
+    minWidth: 80
   }
 });
 

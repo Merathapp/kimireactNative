@@ -1,4 +1,5 @@
 import { Estate, Heirs } from './InheritanceEngine';
+import { FIQH_DATABASE } from '../constants/FiqhDatabase';
 
 /**
  * Validation Result Interface
@@ -77,17 +78,8 @@ export const validateHeirs = (heirs: Heirs): ValidationResult => {
   }
 
   // Check maximum constraints
-  const constraints: Record<string, number> = {
-    husband: 1,
-    wife: 4,
-    father: 1,
-    mother: 1,
-    grandfather: 1,
-    grandmother_mother: 1,
-    grandmother_father: 1
-  };
-
-  for (const [key, max] of Object.entries(constraints)) {
+  for (const [key, constraint] of Object.entries(FIQH_DATABASE.heirConstraints)) {
+    const max = constraint.max;
     if ((heirs[key] || 0) > max) {
       warnings.push(`${key} يجب ألا يتجاوز ${max}`);
     }

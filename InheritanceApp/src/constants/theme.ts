@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // ============================================
 // PROFESSIONAL TYPOGRAPHY SYSTEM
 // Google Play Material Design 3 compliant
@@ -5,26 +7,22 @@
 // ============================================
 
 export const fonts = {
-  // Android native fonts - 100% Play Store compliant
+  // Cross-platform fonts
   regular: {
-    fontFamily: 'sans-serif',
+    fontFamily: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }),
     fontWeight: '400' as const,
   },
   medium: {
-    fontFamily: 'sans-serif-medium',
+    fontFamily: Platform.select({ ios: 'System', android: 'sans-serif-medium', default: 'sans-serif-medium' }),
     fontWeight: '500' as const,
   },
   bold: {
-    fontFamily: 'sans-serif',
+    fontFamily: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }),
     fontWeight: '700' as const,
   },
   light: {
-    fontFamily: 'sans-serif-light',
+    fontFamily: Platform.select({ ios: 'System', android: 'sans-serif-light', default: 'sans-serif-light' }),
     fontWeight: '300' as const,
-  },
-  // iOS/Web fallback
-  fallback: {
-    fontFamily: 'System',
   },
 };
 

@@ -21,6 +21,8 @@ const SettingsScreen: React.FC = () => {
     setLanguage,
     currentMadhab,
     setCurrentMadhab,
+    currency,
+    setCurrency,
     resetHeirs,
   } = useApp();
 
@@ -134,6 +136,24 @@ const SettingsScreen: React.FC = () => {
               ? 'المذهب المستخدم افتراضياً في الحاسبة'
               : 'Default school of jurisprudence used in the calculator'}
           </Text>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Title
+          title={language === 'ar' ? 'العملة' : 'Currency'}
+          left={(props) => <Text {...props}>💵</Text>}
+        />
+        <Card.Content>
+          <SegmentedButtons
+            value={currency}
+            onValueChange={(value) => setCurrency(value as 'SAR' | 'USD' | 'EUR')}
+            buttons={[
+              { value: 'SAR', label: 'ر.س SAR' },
+              { value: 'USD', label: '$ USD' },
+              { value: 'EUR', label: '€ EUR' },
+            ]}
+          />
         </Card.Content>
       </Card>
 

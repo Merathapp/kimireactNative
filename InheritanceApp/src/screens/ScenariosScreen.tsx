@@ -18,7 +18,8 @@ import {
 } from 'react-native-paper';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useApp, MadhabType } from '../context/AppContext';
+import { useApp } from '../context/AppContext';
+import { MadhabType } from '../constants/FiqhDatabase';
 import {
   loadAllScenarios,
   deleteScenario,
@@ -26,16 +27,20 @@ import {
   Scenario
 } from '../utils/ScenarioStorage';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { writeAsStringAsync, cacheDirectory } from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 
 const ScenariosScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
-  const appContext = useApp();
-  const { setCurrentMadhab, updateEstateField, updateHeir, resetHeirs, setDeceasedGender, currentMadhab, estate, heirs, deceasedGender } = appContext;
+  const { setCurrentMadhab, updateEstateField, updateHeir, resetHeirs, setDeceasedGender, currentMadhab, estate, heirs, deceasedGender } = useApp();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [visible, setVisible] = useState(false);
   const [scenarioName, setScenarioName] = useState('');
+  const [importVisible, setImportVisible] = useState(false);
+  const [importText, setImportText] = useState('');
 
   const refresh = useCallback(async () => {
     const list = await loadAllScenarios();
@@ -79,6 +84,49 @@ const ScenariosScreen: React.FC = () => {
     ]);
   };
 
+  const handleExportAll = async () => {
+    try {
+      const list = await loadAllScenarios();
+      if (list.length === 0) {
+        Alert.alert('لا توجد سيناريوهات', 'لا يوجد سيناريوهات للتصدير');
+        return;
+      }
+      const json = JSON.stringify(list, null, 2);
+      const uri = cacheDirectory + 'merath_scenarios.json';
+      await writeAsStringAsync(uri, json, { encoding: 'utf8' });
+      await Sharing.shareAsync(uri, { mimeType: 'application/json', dialogTitle: 'تصدير السيناريوهات' });
+    } catch {
+      Alert.alert('خطأ', 'فشل تصدير السيناريوهات');
+    }
+  };
+
+  const handleImportConfirm = async () => {
+    try {
+      const parsed: Scenario[] = JSON.parse(importText);
+      if (!Array.isArray(parsed)) throw new Error('must be array');
+      parsed.forEach(s => {
+        if (!s.id || !s.name || !s.madhab || !s.estate || !s.heirs) throw new Error('invalid shape');
+      });
+      const existing = await loadAllScenarios();
+      const merged = [...existing];
+      parsed.forEach(incoming => {
+        const idx = merged.findIndex(e => e.id === incoming.id);
+        if (idx >= 0) {
+          merged[idx] = incoming;
+        } else {
+          merged.push(incoming);
+        }
+      });
+      await AsyncStorage.setItem('merath_scenarios', JSON.stringify(merged));
+      setImportVisible(false);
+      setImportText('');
+      refresh();
+      Alert.alert('تم', `تم استيراد ${parsed.length} سيناريو بنجاح`);
+    } catch {
+      Alert.alert('خطأ', 'البيانات غير صالحة. يرجى التأكد من أن النص بصيغة JSON صحيحة.');
+    }
+  };
+
   const handleSaveCurrent = async () => {
     if (!scenarioName.trim()) return;
     await saveScenario(scenarioName.trim(), currentMadhab, estate, heirs, deceasedGender);
@@ -94,6 +142,16 @@ const ScenariosScreen: React.FC = () => {
         <View style={styles.headerRow}>
           <IconButton icon="arrow-right" iconColor="#fff" onPress={() => navigation.goBack()} />
           <Text variant="headlineSmall" style={styles.headerTitle}>السيناريوهات</Text>
+          <IconButton
+            icon="file-export"
+            iconColor="#fff"
+            onPress={handleExportAll}
+          />
+          <IconButton
+            icon="file-import"
+            iconColor="#fff"
+            onPress={() => setImportVisible(true)}
+          />
           <IconButton
             icon="content-save"
             iconColor="#fff"
@@ -149,6 +207,28 @@ const ScenariosScreen: React.FC = () => {
           <Dialog.Actions>
             <Button onPress={() => setVisible(false)}>إلغاء</Button>
             <Button onPress={handleSaveCurrent} disabled={!scenarioName.trim()}>حفظ</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={importVisible} onDismiss={() => setImportVisible(false)}>
+          <Dialog.Title>استيراد سيناريوهات</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#64748b' }}>
+              الصق نص JSON للسيناريوهات:
+            </Text>
+            <TextInput
+              label="JSON"
+              value={importText}
+              onChangeText={setImportText}
+              mode="outlined"
+              multiline
+              numberOfLines={6}
+              style={styles.dialogInput}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setImportVisible(false)}>إلغاء</Button>
+            <Button onPress={handleImportConfirm} disabled={!importText.trim()}>استيراد</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

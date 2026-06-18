@@ -146,4 +146,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default HeirInput;
+export default React.memo(HeirInput);

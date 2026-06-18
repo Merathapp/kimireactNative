@@ -18,8 +18,9 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useApp } from '../context/AppContext';
+import { useApp, currencySymbols } from '../context/AppContext';
 import PieChart from '../components/PieChart';
+import SimpleBarChart from '../components/SimpleBarChart';
 import { appTypography } from '../constants/theme';
 import { HeirShare } from '../utils/HeirShare';
 import { BlockedHeir, SpecialCase, CalculationStep } from '../utils/InheritanceEngine';
@@ -41,7 +42,8 @@ const colors = [
 
 const ResultsScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
-  const { lastResult, addAuditLog } = useApp();
+  const { lastResult, addAuditLog, currency } = useApp();
+  const currencySymbol = currencySymbols[currency];
 
   if (!lastResult || !lastResult.success) {
     return (
@@ -94,15 +96,15 @@ const ResultsScreen: React.FC = () => {
     let text = `نتائج حساب الميراث - المذهب ${madhhabName}\n`;
     text += `التاريخ: ${new Date().toLocaleDateString('ar-SA')}\n`;
     text += `═══════════════════════════════════\n\n`;
-    text += `صافي التركة: ${netEstate?.toLocaleString('en-US')}\n`;
+    text += `صافي التركة: ${netEstate?.toLocaleString('en-US')} ${currencySymbol}\n`;
     text += `أصل المسألة: ${finalBase}\n`;
     if (awlApplied) text += `(عالت من ${asl})\n`;
     text += `\nالأنصبة:\n`;
 
     shares?.forEach((s: HeirShare) => {
-      text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString('en-US')}\n`;
+      text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString('en-US')} ${currencySymbol}\n`;
       if (s.count > 1) {
-        text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString('en-US')})\n`;
+        text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol})\n`;
       }
     });
 
@@ -141,9 +143,9 @@ const ResultsScreen: React.FC = () => {
     try {
       let csv = 'الوارث,النوع,العدد,الحصة,المبلغ\n';
       shares?.forEach((s: HeirShare) => {
-        csv += `${s.name},${s.type},${s.count},${s.fraction.toDisplay()},${s.amount.toLocaleString('en-US')}\n`;
+        csv += `${s.name},${s.type},${s.count},${s.fraction.toDisplay()},${s.amount.toLocaleString('en-US')} ${currencySymbol}\n`;
         if (s.count > 1) {
-          csv += `لكل فرد,,${s.fraction.divide(s.count).toDisplay()},${s.amountPerPerson.toLocaleString('en-US')}\n`;
+          csv += `لكل فرد,,${s.fraction.divide(s.count).toDisplay()},${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}\n`;
         }
       });
 
@@ -163,13 +165,13 @@ const ResultsScreen: React.FC = () => {
     }
   };
 
-  const handlePrint = async () => {
+  const handlePdf = async () => {
     try {
       let rows = '';
       shares?.forEach((s: HeirShare) => {
-        rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')}</td></tr>`;
+        rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         if (s.count > 1) {
-          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')}</td></tr>`;
+          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         }
       });
 
@@ -195,7 +197,58 @@ const ResultsScreen: React.FC = () => {
   <h1>نتائج حساب الميراث</h1>
   <p style="text-align:center;color:#64748b;">المذهب: ${madhhabName} | ${new Date().toLocaleDateString('ar-SA')}</p>
   <div class="summary">
-    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')}</div></div>
+    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
+    <div><div class="label">أصل المسألة</div><div class="value">${finalBase}${awlApplied ? ` (عالت من ${asl})` : ''}</div></div>
+    <div><div class="label">الحالة</div><div class="value">${getStatusText()}</div></div>
+  </div>
+  <table><thead><tr><th>الوارث</th><th>النوع</th><th>العدد</th><th>الحصة</th><th>المبلغ</th></tr></thead><tbody>${rows}</tbody></table>
+  ${specialCases?.length ? specialCases.map((c: SpecialCase) => `<div class="warning"><strong>${c.name}:</strong> ${c.description}</div>`).join('') : ''}
+  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>محجوب:</strong> ${b.reason}</div>`).join('') : ''}
+  ${madhhabNotes?.length ? madhhabNotes.map((n: string) => `<div class="note">${n}</div>`).join('') : ''}
+  <div class="footer">تم الإنشاء بواسطة تطبيق ميراث</div>
+</body></html>`;
+
+      const { uri } = await Print.printToFileAsync({ html });
+      await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'تصدير PDF' });
+      addAuditLog('تصدير PDF', 'success', 'تم تصدير PDF');
+    } catch {
+      addAuditLog('تصدير PDF', 'error', 'فشل تصدير PDF');
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      let rows = '';
+      shares?.forEach((s: HeirShare) => {
+        rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
+        if (s.count > 1) {
+          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
+        }
+      });
+
+      const html = `<!DOCTYPE html>
+<html dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<style>
+  body { font-family: 'Arial', sans-serif; padding: 20px; color: #1e293b; }
+  h1 { text-align: center; color: #1e293b; font-size: 22px; }
+  .summary { background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; display: flex; gap: 16px; flex-wrap: wrap; }
+  .summary div { flex: 1; min-width: 120px; text-align: center; }
+  .summary .label { font-size: 12px; color: #64748b; }
+  .summary .value { font-size: 18px; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: #1e293b; color: #fff; padding: 10px; text-align: center; }
+  td { padding: 8px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .per-person td { color: #64748b; font-style: italic; font-size: 13px; background: #f8fafc; }
+  .warning { color: #92400e; background: #fef3c7; padding: 8px; border-radius: 6px; margin: 8px 0; }
+  .note { color: #065f46; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+</style></head>
+<body>
+  <h1>نتائج حساب الميراث</h1>
+  <p style="text-align:center;color:#64748b;">المذهب: ${madhhabName} | ${new Date().toLocaleDateString('ar-SA')}</p>
+  <div class="summary">
+    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
     <div><div class="label">أصل المسألة</div><div class="value">${finalBase}${awlApplied ? ` (عالت من ${asl})` : ''}</div></div>
     <div><div class="label">الحالة</div><div class="value">${getStatusText()}</div></div>
   </div>
@@ -264,18 +317,18 @@ const ResultsScreen: React.FC = () => {
           <View style={styles.summaryGrid}>
             <Surface style={styles.summaryItem}>
               <Text style={styles.summaryLabel}>إجمالي التركة</Text>
-              <Text style={styles.summaryValue}>{estate?.total.toLocaleString('en-US')}</Text>
+              <Text style={styles.summaryValue}>{estate?.total.toLocaleString('en-US')} {currencySymbol}</Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#fef2f2' }]}>
               <Text style={styles.summaryLabel}>الخصومات</Text>
               <Text style={[styles.summaryValue, { color: '#dc2626' }]}>
-                {((estate?.funeral || 0) + (estate?.debts || 0) + (estate?.will || 0)).toLocaleString('en-US')}
+                {((estate?.funeral || 0) + (estate?.debts || 0) + (estate?.will || 0)).toLocaleString('en-US')} {currencySymbol}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#f0fdf4' }]}>
               <Text style={styles.summaryLabel}>صافي التركة</Text>
               <Text style={[styles.summaryValue, { color: '#16a34a' }]}>
-                {netEstate?.toLocaleString('en-US')}
+                {netEstate?.toLocaleString('en-US')} {currencySymbol}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#eef2ff' }]}>
@@ -381,6 +434,13 @@ const ResultsScreen: React.FC = () => {
                 </View>
               ))}
             </View>
+            <SimpleBarChart
+              data={chartData.map((d, i) => ({
+                label: d.name,
+                percentage: (d.amount / (netEstate || 1)) * 100,
+                color: colors[i % colors.length],
+              }))}
+            />
           </Card.Content>
         </Card>
       )}
@@ -422,7 +482,7 @@ const ResultsScreen: React.FC = () => {
                   <DataTable.Cell numeric>{share.count}</DataTable.Cell>
                   <DataTable.Cell numeric>{share.fraction.toDisplay()}</DataTable.Cell>
                   <DataTable.Cell numeric>
-                    <Text style={styles.amount}>{share.amount.toLocaleString('en-US')}</Text>
+                    <Text style={styles.amount}>{share.amount.toLocaleString('en-US')} {currencySymbol}</Text>
                   </DataTable.Cell>
                 </DataTable.Row>
               ];
@@ -440,7 +500,7 @@ const ResultsScreen: React.FC = () => {
                     </DataTable.Cell>
                     <DataTable.Cell numeric>
                       <Text style={styles.perPersonAmount}>
-                        {share.amountPerPerson.toLocaleString('en-US')}
+                        {share.amountPerPerson.toLocaleString('en-US')} {currencySymbol}
                       </Text>
                     </DataTable.Cell>
                   </DataTable.Row>
@@ -494,6 +554,15 @@ const ResultsScreen: React.FC = () => {
               labelStyle={appTypography.labelLarge}
             >
               CSV
+            </Button>
+            <Button
+              mode="outlined"
+              icon="file-pdf-box"
+              onPress={handlePdf}
+              style={styles.actionButton}
+              labelStyle={appTypography.labelLarge}
+            >
+              PDF
             </Button>
             <Button
               mode="outlined"

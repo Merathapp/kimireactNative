@@ -71,6 +71,8 @@ export interface CalculationResult {
   warnings?: string[];
   steps?: CalculationStep[];
   confidence?: number;
+  pregnancyNote?: string;
+  missingHeirNote?: string;
 }
 
 /**
@@ -1367,7 +1369,7 @@ const asabaList: { key: string; name: string; weight: number; addToExisting?: bo
   }
 
   // ========== Main Calculation ==========
-  calculate(): CalculationResult {
+  calculate(options?: { hasPregnancy?: boolean; hasMissingHeir?: boolean }): CalculationResult {
     try {
       if (this.state.errors.length > 0) {
         return {
@@ -1452,6 +1454,19 @@ const asabaList: { key: string; name: string; weight: number; addToExisting?: bo
 
       this.results.shares = allShares.filter(s => !s.fraction.isZero());
 
+      let pregnancyNote: string | undefined;
+      let missingHeirNote: string | undefined;
+
+      if (options?.hasPregnancy) {
+        pregnancyNote = 'يوجد حمل (امرأة حامل) - يرجى تأجيل توزيع نصيب الجنين حتى الولادة';
+        this.state.warnings.push('يوجد حمل: يُرجى تأجيل توزيع نصيب الجنين حتى الولادة للتأكد من جنسه ووجوده');
+      }
+
+      if (options?.hasMissingHeir) {
+        missingHeirNote = 'يوجد وارث مفقود - يُرجى تأجيل التوزيع النهائي لحين التحقق من وجوده أو غيابه';
+        this.state.warnings.push('يوجد وارث مفقود: يُرجى تأجيل التوزيع النهائي لحين التحقق من أمر المفقود');
+      }
+
       return {
         success: true,
         madhab: this.madhab,
@@ -1471,7 +1486,9 @@ const asabaList: { key: string; name: string; weight: number; addToExisting?: bo
         madhhabNotes: this.state.madhhabNotes,
         warnings: this.state.warnings,
         steps: this.state.steps,
-        confidence: this.results.confidence
+        confidence: this.results.confidence,
+        pregnancyNote,
+        missingHeirNote
       };
 
     } catch (error: any) {

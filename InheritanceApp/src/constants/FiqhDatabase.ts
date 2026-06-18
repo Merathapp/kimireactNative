@@ -134,15 +134,6 @@ export const FIQH_DATABASE = {
     { key: 'paternal_aunt', class: 4, name: 'العمة' }
   ],
 
-  heirCategories: {
-    spouses: ['husband', 'wife'],
-    parents: ['father', 'mother', 'grandfather', 'grandmother_mother', 'grandmother_father'],
-    children: ['son', 'daughter', 'grandson', 'granddaughter'],
-    siblings: ['full_brother', 'full_sister', 'paternal_brother', 'paternal_sister', 'maternal_brother', 'maternal_sister'],
-    extended: ['full_nephew', 'paternal_nephew', 'full_uncle', 'paternal_uncle', 'full_cousin', 'paternal_cousin'],
-    bloodRelatives: ['daughter_son', 'daughter_daughter', 'sister_children', 'maternal_uncle', 'maternal_aunt', 'paternal_aunt']
-  },
-
   heirDescriptions: {
     husband: '½ بدون فرع، ¼ مع فرع وارث',
     wife: '¼ بدون فرع، ⅛ مع فرع (يشتركن)',

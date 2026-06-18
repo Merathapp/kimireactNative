@@ -12,7 +12,15 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.inheritance.calculator",
-      "buildNumber": "5.0.0"
+      "buildNumber": "5.0.0",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["merath"],
+            "CFBundleURLName": "com.inheritance.calculator"
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.inheritance.calculator",
@@ -24,7 +32,21 @@
       "permissions": [
         "android.permission.INTERNET"
       ],
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "merath",
+              "host": "*",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

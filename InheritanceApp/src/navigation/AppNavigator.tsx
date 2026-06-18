@@ -1,15 +1,20 @@
+import { useState, useEffect } from 'react';
+import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { LinkingOptions, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '../context/AppContext';
 import MainTabNavigator from './MainTabNavigator';
 import ResultsScreen from '../screens/ResultsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ScenariosScreen from '../screens/ScenariosScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
 import { colors } from '../constants/colors';
+import { fonts } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   MainTabs: undefined;
   Results: undefined;
   Calculator: undefined;
@@ -21,10 +26,43 @@ type AppNavProp = StackNavigationProp<RootStackParamList>;
 
 const Stack = createStackNavigator<RootStackParamList>();
 
+export const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['merath://'],
+  config: {
+    screens: {
+      MainTabs: '',
+      Results: 'results',
+      Calculator: 'calculator',
+      Settings: 'settings',
+      Scenarios: 'scenarios',
+    },
+  },
+};
+
 const AppNavigator = () => {
   const { language } = useApp();
   const isRTL = language === 'ar';
   const navigation = useNavigation<AppNavProp>();
+  const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const done = await AsyncStorage.getItem('merath_onboarding_done');
+        setIsFirstLaunch(done !== 'true');
+      } catch {
+        setIsFirstLaunch(false);
+      }
+    })();
+  }, []);
+
+  if (isFirstLaunch === null) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e293b' }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
 
   return (
     <Stack.Navigator
@@ -39,14 +77,20 @@ const AppNavigator = () => {
         },
         headerTintColor: colors.text.inverse,
         headerTitleStyle: {
-          fontFamily: 'sans-serif-medium',
+          ...fonts.medium,
           fontSize: 18,
-          fontWeight: '600',
         },
         headerBackTitleVisible: false,
         headerTitleAlign: 'left',
       }}
     >
+      {isFirstLaunch && (
+        <Stack.Screen
+          name="Onboarding"
+          component={OnboardingScreen}
+          options={{ headerShown: false }}
+        />
+      )}
       <Stack.Screen
         name="MainTabs"
         component={MainTabNavigator}

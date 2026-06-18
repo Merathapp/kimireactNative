@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useApp } from '../context/AppContext';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
+import { fonts } from '../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CalculatorScreen from '../screens/CalculatorScreen';
@@ -10,8 +11,19 @@ import RulesScreen from '../screens/RulesScreen';
 import CompareScreen from '../screens/CompareScreen';
 import AuditScreen from '../screens/AuditScreen';
 import TestsScreen from '../screens/TestsScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 
-const Tab = createBottomTabNavigator();
+export type RootTabParamList = {
+  Calculator: undefined;
+  Results: undefined;
+  Rules: undefined;
+  Compare: undefined;
+  History: undefined;
+  Audit: undefined;
+  Tests: undefined;
+};
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const MainTabNavigator = () => {
   const { language } = useApp();
@@ -28,6 +40,8 @@ const MainTabNavigator = () => {
         return focused ? 'book' : 'book-outline';
       case 'Compare':
         return focused ? 'git-compare' : 'git-compare-outline';
+      case 'History':
+        return focused ? 'time' : 'time-outline';
       case 'Audit':
         return focused ? 'document-text' : 'document-text-outline';
       case 'Tests':
@@ -63,9 +77,8 @@ const MainTabNavigator = () => {
           shadowRadius: 4,
         },
         tabBarLabelStyle: {
+          ...fonts.medium,
           fontSize: 11,
-          fontWeight: '500',
-          fontFamily: 'sans-serif-medium',
           marginTop: 2,
         },
         headerShown: false,
@@ -101,6 +114,14 @@ const MainTabNavigator = () => {
         options={{ 
           tabBarLabel: isRTL ? 'مقارنة' : 'Compare',
           tabBarAccessibilityLabel: isRTL ? 'مقارنة المذاهب' : 'Compare Madhabs'
+        }}
+      />
+      <Tab.Screen 
+        name="History" 
+        component={HistoryScreen} 
+        options={{ 
+          tabBarLabel: isRTL ? 'السجل' : 'History',
+          tabBarAccessibilityLabel: isRTL ? 'سجل الحسابات' : 'Calculation History'
         }}
       />
       <Tab.Screen 
