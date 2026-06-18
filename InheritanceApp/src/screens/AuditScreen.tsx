@@ -7,22 +7,24 @@ import {
   Surface,
   Chip,
   Divider
-} from 'react-native-paper'; // REMOVED Button
+} from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useApp } from '../context/AppContext';
 
 const AuditScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { auditLog, clearAuditLog } = useApp();
 
   const handleClear = () => {
     Alert.alert(
-      'مسح السجل',
-      'هل أنت متأكد من مسح سجل المراجعة؟',
+      t('auditClearAlertTitle'),
+      t('auditClearAlertMessage'),
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('calculatorAlertCancel'), style: 'cancel' },
         {
-          text: 'مسح',
+          text: t('auditClearButton'),
           style: 'destructive',
           onPress: clearAuditLog
         }
@@ -43,7 +45,7 @@ const AuditScreen: React.FC = () => {
         await Sharing.shareAsync(fileUri);
       }
     } catch {
-      Alert.alert('خطأ', 'فشل تصدير السجل');
+      Alert.alert(t('calculatorAlertError'), t('auditExportError'));
     }
   };
 
@@ -72,7 +74,7 @@ const AuditScreen: React.FC = () => {
       <Surface style={styles.header} elevation={2}>
         <View style={styles.headerRow}>
           <Text variant="headlineSmall" style={styles.headerTitle}>
-            📋 سجل المراجعة
+            {t('auditTitle')}
           </Text>
           <View style={styles.headerActions}>
             <IconButton
@@ -90,16 +92,16 @@ const AuditScreen: React.FC = () => {
           </View>
         </View>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          {auditLog.length} سجل
+          {t('auditRecordCount', { count: auditLog.length })}
         </Text>
       </Surface>
 
       {auditLog.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>📋</Text>
-          <Text style={styles.emptyText}>لا توجد سجلات بعد</Text>
+          <Text style={styles.emptyText}>{t('auditEmptyTitle')}</Text>
           <Text style={styles.emptySubtext}>
-            سيتم تسجيل جميع العمليات هنا
+            {t('auditEmptySubtitle')}
           </Text>
         </View>
       ) : (

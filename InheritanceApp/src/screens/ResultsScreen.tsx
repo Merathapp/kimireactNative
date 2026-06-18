@@ -18,6 +18,7 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useTranslation } from 'react-i18next';
 import { useApp, currencySymbols } from '../context/AppContext';
 import PieChart from '../components/PieChart';
 import SimpleBarChart from '../components/SimpleBarChart';
@@ -42,6 +43,7 @@ const colors = [
 
 const ResultsScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
+  const { t } = useTranslation();
   const { lastResult, addAuditLog, currency } = useApp();
   const currencySymbol = currencySymbols[currency];
 
@@ -49,17 +51,17 @@ const ResultsScreen: React.FC = () => {
     return (
       <View style={styles.emptyContainer}>
         <Text variant="headlineMedium" style={styles.emptyText}>
-          لا توجد نتائج
+          {t('resultsEmptyTitle')}
         </Text>
         <Text variant="bodyMedium" style={styles.emptySubtext}>
-          قم بإجراء حساب أولاً
+          {t('resultsEmptySubtitle')}
         </Text>
         <Button
           mode="contained"
           onPress={() => navigation.navigate('Calculator')}
           style={styles.emptyButton}
         >
-          الذهاب للحاسبة
+          {t('resultsEmptyButton')}
         </Button>
       </View>
     );
@@ -93,23 +95,23 @@ const ResultsScreen: React.FC = () => {
   })) || []);
 
   const buildResultText = () => {
-    let text = `نتائج حساب الميراث - المذهب ${madhhabName}\n`;
-    text += `التاريخ: ${new Date().toLocaleDateString('ar-SA')}\n`;
+    let text = t('resultsShareTitle') + '\n';
+    text += t('resultsShareDate', { date: new Date().toLocaleDateString('ar-SA') }) + '\n';
     text += `═══════════════════════════════════\n\n`;
-    text += `صافي التركة: ${netEstate?.toLocaleString('en-US')} ${currencySymbol}\n`;
-    text += `أصل المسألة: ${finalBase}\n`;
-    if (awlApplied) text += `(عالت من ${asl})\n`;
-    text += `\nالأنصبة:\n`;
+    text += `${t('resultsNetEstate')}: ${netEstate?.toLocaleString('en-US')} ${currencySymbol}\n`;
+    text += `${t('resultsCaseOrigin')}: ${finalBase}\n`;
+    if (awlApplied) text += `(${t('resultsAwlNote', { asl })})`;
+    text += `\n${t('resultsColumnShare')}:\n`;
 
     shares?.forEach((s: HeirShare) => {
       text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString('en-US')} ${currencySymbol}\n`;
       if (s.count > 1) {
-        text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol})\n`;
+        text += `  (${t('resultsPerPerson')}: ${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol})\n`;
       }
     });
 
     if (specialCases && specialCases.length > 0) {
-      text += `\nحالات خاصة:\n`;
+      text += `\n${t('resultsSpecialCasesCard')}:\n`;
       specialCases.forEach((c: SpecialCase) => {
         text += `• ${c.name}: ${c.description}\n`;
       });
@@ -121,36 +123,36 @@ const ResultsScreen: React.FC = () => {
     try {
       await Share.share({
         message: buildResultText(),
-        title: 'نتائج حساب الميراث'
+        title: t('resultsShareTitle')
       });
-      addAuditLog('مشاركة النتائج', 'success', 'تمت مشاركة النتائج');
+      addAuditLog(t('auditLogShare'), 'success', t('auditLogShareSuccess'));
     } catch {
-      addAuditLog('مشاركة النتائج', 'error', 'فشلت المشاركة');
+      addAuditLog(t('auditLogShare'), 'error', t('auditLogShareError'));
     }
   };
 
   const handleCopy = async () => {
     try {
       await Clipboard.setStringAsync(buildResultText());
-      Alert.alert('تم', 'تم نسخ النتائج إلى الحافظة');
-      addAuditLog('نسخ النتائج', 'success', 'تم نسخ النتائج');
+      Alert.alert(t('resultsAlertDone'), t('resultsAlertCopied'));
+      addAuditLog(t('auditLogCopy'), 'success', t('auditLogCopySuccess'));
     } catch {
-      addAuditLog('نسخ النتائج', 'error', 'فشل النسخ');
+      addAuditLog(t('auditLogCopy'), 'error', t('auditLogCopyError'));
     }
   };
 
   const handleCsvExport = async () => {
     try {
-      let csv = 'الوارث,النوع,العدد,الحصة,المبلغ\n';
+      let csv = t('resultsCsvHeader') + '\n';
       shares?.forEach((s: HeirShare) => {
         csv += `${s.name},${s.type},${s.count},${s.fraction.toDisplay()},${s.amount.toLocaleString('en-US')} ${currencySymbol}\n`;
         if (s.count > 1) {
-          csv += `لكل فرد,,${s.fraction.divide(s.count).toDisplay()},${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}\n`;
+          csv += `${t('resultsPerPerson')},,${s.fraction.divide(s.count).toDisplay()},${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}\n`;
         }
       });
 
       if (specialCases?.length) {
-        csv += '\nحالات خاصة\n';
+        csv += `\n${t('resultsSpecialCasesCard')}\n`;
         specialCases.forEach((c: SpecialCase) => {
           csv += `${c.name},${c.description}\n`;
         });
@@ -158,10 +160,10 @@ const ResultsScreen: React.FC = () => {
 
       const uri = cacheDirectory + 'merath_results.csv';
       await writeAsStringAsync(uri, csv, { encoding: 'utf8' });
-      await Sharing.shareAsync(uri, { mimeType: 'text/csv', dialogTitle: 'تصدير CSV' });
-      addAuditLog('تصدير CSV', 'success', 'تم تصدير CSV');
+      await Sharing.shareAsync(uri, { mimeType: 'text/csv', dialogTitle: t('auditLogCsvExport') });
+      addAuditLog(t('auditLogCsvExport'), 'success', t('auditLogCsvSuccess'));
     } catch {
-      addAuditLog('تصدير CSV', 'error', 'فشل تصدير CSV');
+      addAuditLog(t('auditLogCsvExport'), 'error', t('auditLogCsvError'));
     }
   };
 
@@ -171,11 +173,11 @@ const ResultsScreen: React.FC = () => {
       shares?.forEach((s: HeirShare) => {
         rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         if (s.count > 1) {
-          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
+          rows += `<tr class="per-person"><td colspan="2">${t('resultsPerPerson')}</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         }
       });
 
-      const html = `<!DOCTYPE html>
+      const htmlPdf = `<!DOCTYPE html>
 <html dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <style>
@@ -194,25 +196,25 @@ const ResultsScreen: React.FC = () => {
   .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
 </style></head>
 <body>
-  <h1>نتائج حساب الميراث</h1>
-  <p style="text-align:center;color:#64748b;">المذهب: ${madhhabName} | ${new Date().toLocaleDateString('ar-SA')}</p>
+  <h1>${t('resultsPdfHeading')}</h1>
+  <p style="text-align:center;color:#64748b;">${t('rulesMadhabDisplay', { name: madhhabName })} | ${new Date().toLocaleDateString('ar-SA')}</p>
   <div class="summary">
-    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
-    <div><div class="label">أصل المسألة</div><div class="value">${finalBase}${awlApplied ? ` (عالت من ${asl})` : ''}</div></div>
-    <div><div class="label">الحالة</div><div class="value">${getStatusText()}</div></div>
+    <div><div class="label">${t('resultsNetEstate')}</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
+    <div><div class="label">${t('resultsCaseOrigin')}</div><div class="value">${finalBase}${awlApplied ? ` (${t('resultsAwlNote', { asl })})` : ''}</div></div>
+    <div><div class="label">${t('resultsPdfStatus')}</div><div class="value">${getStatusText()}</div></div>
   </div>
-  <table><thead><tr><th>الوارث</th><th>النوع</th><th>العدد</th><th>الحصة</th><th>المبلغ</th></tr></thead><tbody>${rows}</tbody></table>
+  <table><thead><tr><th>${t('resultsColumnHeir')}</th><th>${t('resultsColumnCount')}</th><th>${t('resultsColumnShare')}</th><th>${t('resultsColumnAmount')}</th></tr></thead><tbody>${rows}</tbody></table>
   ${specialCases?.length ? specialCases.map((c: SpecialCase) => `<div class="warning"><strong>${c.name}:</strong> ${c.description}</div>`).join('') : ''}
-  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>محجوب:</strong> ${b.reason}</div>`).join('') : ''}
+  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>${t('resultsBlockedLabel')}</strong> ${b.reason}</div>`).join('') : ''}
   ${madhhabNotes?.length ? madhhabNotes.map((n: string) => `<div class="note">${n}</div>`).join('') : ''}
-  <div class="footer">تم الإنشاء بواسطة تطبيق ميراث</div>
+  <div class="footer">${t('appFooter')}</div>
 </body></html>`;
 
-      const { uri } = await Print.printToFileAsync({ html });
-      await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'تصدير PDF' });
-      addAuditLog('تصدير PDF', 'success', 'تم تصدير PDF');
+      const { uri } = await Print.printToFileAsync({ html: htmlPdf });
+      await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: t('auditLogPdfExport') });
+      addAuditLog(t('auditLogPdfExport'), 'success', t('auditLogPdfSuccess'));
     } catch {
-      addAuditLog('تصدير PDF', 'error', 'فشل تصدير PDF');
+      addAuditLog(t('auditLogPdfExport'), 'error', t('auditLogPdfError'));
     }
   };
 
@@ -222,11 +224,11 @@ const ResultsScreen: React.FC = () => {
       shares?.forEach((s: HeirShare) => {
         rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         if (s.count > 1) {
-          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
+          rows += `<tr class="per-person"><td colspan="2">${t('resultsPerPerson')}</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')} ${currencySymbol}</td></tr>`;
         }
       });
 
-      const html = `<!DOCTYPE html>
+      const htmlPrint = `<!DOCTYPE html>
 <html dir="rtl">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <style>
@@ -245,31 +247,31 @@ const ResultsScreen: React.FC = () => {
   .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
 </style></head>
 <body>
-  <h1>نتائج حساب الميراث</h1>
-  <p style="text-align:center;color:#64748b;">المذهب: ${madhhabName} | ${new Date().toLocaleDateString('ar-SA')}</p>
+  <h1>${t('resultsPdfHeading')}</h1>
+  <p style="text-align:center;color:#64748b;">${t('rulesMadhabDisplay', { name: madhhabName })} | ${new Date().toLocaleDateString('ar-SA')}</p>
   <div class="summary">
-    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
-    <div><div class="label">أصل المسألة</div><div class="value">${finalBase}${awlApplied ? ` (عالت من ${asl})` : ''}</div></div>
-    <div><div class="label">الحالة</div><div class="value">${getStatusText()}</div></div>
+    <div><div class="label">${t('resultsNetEstate')}</div><div class="value">${netEstate?.toLocaleString('en-US')} ${currencySymbol}</div></div>
+    <div><div class="label">${t('resultsCaseOrigin')}</div><div class="value">${finalBase}${awlApplied ? ` (${t('resultsAwlNote', { asl })})` : ''}</div></div>
+    <div><div class="label">${t('resultsPdfStatus')}</div><div class="value">${getStatusText()}</div></div>
   </div>
-  <table><thead><tr><th>الوارث</th><th>النوع</th><th>العدد</th><th>الحصة</th><th>المبلغ</th></tr></thead><tbody>${rows}</tbody></table>
+  <table><thead><tr><th>${t('resultsColumnHeir')}</th><th>${t('resultsColumnCount')}</th><th>${t('resultsColumnShare')}</th><th>${t('resultsColumnAmount')}</th></tr></thead><tbody>${rows}</tbody></table>
   ${specialCases?.length ? specialCases.map((c: SpecialCase) => `<div class="warning"><strong>${c.name}:</strong> ${c.description}</div>`).join('') : ''}
-  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>محجوب:</strong> ${b.reason}</div>`).join('') : ''}
+  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>${t('resultsBlockedLabel')}</strong> ${b.reason}</div>`).join('') : ''}
   ${madhhabNotes?.length ? madhhabNotes.map((n: string) => `<div class="note">${n}</div>`).join('') : ''}
-  <div class="footer">تم الإنشاء بواسطة تطبيق ميراث</div>
+  <div class="footer">${t('appFooter')}</div>
 </body></html>`;
 
-      await Print.printAsync({ html });
-      addAuditLog('طباعة النتائج', 'success', 'تمت الطباعة');
+      await Print.printAsync({ html: htmlPrint });
+      addAuditLog(t('auditLogPrint'), 'success', t('auditLogPrintSuccess'));
     } catch {
-      addAuditLog('طباعة النتائج', 'error', 'فشلت الطباعة');
+      addAuditLog(t('auditLogPrint'), 'error', t('auditLogPrintError'));
     }
   };
 
   const getStatusText = () => {
-    if (awlApplied) return 'عائلة';
-    if (raddApplied) return 'رادّة';
-    return 'عادية';
+    if (awlApplied) return t('resultsStatusAwl');
+    if (raddApplied) return t('resultsStatusRadd');
+    return t('resultsStatusNormal');
   };
 
   const getConfidenceColor = () => {
@@ -289,7 +291,7 @@ const ResultsScreen: React.FC = () => {
             onPress={() => navigation.goBack()}
           />
           <Text variant="headlineSmall" style={styles.headerTitle}>
-            نتائج الحساب
+            {t('resultsTitle')}
           </Text>
           <IconButton
             icon="share-variant"
@@ -305,37 +307,37 @@ const ResultsScreen: React.FC = () => {
             {getStatusText()}
           </Chip>
           <Chip style={[styles.badge, { backgroundColor: getConfidenceColor() + '20' }]}>
-            ثقة {(confidence ? confidence * 100 : 0).toFixed(0)}%
+            {t('resultsConfidence', { pct: (confidence ? confidence * 100 : 0).toFixed(0) })}
           </Chip>
         </View>
       </Surface>
 
       {/* Estate Summary */}
       <Card style={styles.card}>
-        <Card.Title title="ملخص التركة" />
+        <Card.Title title={t('resultsEstateSummaryCard')} />
         <Card.Content>
           <View style={styles.summaryGrid}>
             <Surface style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>إجمالي التركة</Text>
+              <Text style={styles.summaryLabel}>{t('resultsTotalEstate')}</Text>
               <Text style={styles.summaryValue}>{estate?.total.toLocaleString('en-US')} {currencySymbol}</Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#fef2f2' }]}>
-              <Text style={styles.summaryLabel}>الخصومات</Text>
+              <Text style={styles.summaryLabel}>{t('resultsDeductions')}</Text>
               <Text style={[styles.summaryValue, { color: '#dc2626' }]}>
                 {((estate?.funeral || 0) + (estate?.debts || 0) + (estate?.will || 0)).toLocaleString('en-US')} {currencySymbol}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#f0fdf4' }]}>
-              <Text style={styles.summaryLabel}>صافي التركة</Text>
+              <Text style={styles.summaryLabel}>{t('resultsNetEstate')}</Text>
               <Text style={[styles.summaryValue, { color: '#16a34a' }]}>
                 {netEstate?.toLocaleString('en-US')} {currencySymbol}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#eef2ff' }]}>
-              <Text style={styles.summaryLabel}>أصل المسألة</Text>
+              <Text style={styles.summaryLabel}>{t('resultsCaseOrigin')}</Text>
               <Text style={[styles.summaryValue, { color: '#4f46e5' }]}>
                 {finalBase}
-                {awlApplied && <Text style={styles.awlText}> (عالت من {asl})</Text>}
+                {awlApplied && <Text style={styles.awlText}> {t('resultsAwlNote', { asl })}</Text>}
               </Text>
             </Surface>
           </View>
@@ -346,7 +348,7 @@ const ResultsScreen: React.FC = () => {
       {warnings && warnings.length > 0 && (
         <Card style={[styles.card, { borderColor: '#f59e0b', borderWidth: 1 }]}>
           <Card.Title
-            title="⚠️ تحذيرات"
+            title={t('resultsWarningsCard')}
             titleStyle={{ color: '#92400e' }}
           />
           <Card.Content>
@@ -361,7 +363,7 @@ const ResultsScreen: React.FC = () => {
       {specialCases && specialCases.length > 0 && (
         <Card style={[styles.card, { borderColor: '#3b82f6', borderWidth: 1 }]}>
           <Card.Title
-            title="⚡ حالات خاصة"
+            title={t('resultsSpecialCasesCard')}
             titleStyle={{ color: '#1e40af' }}
           />
           <Card.Content>
@@ -379,7 +381,7 @@ const ResultsScreen: React.FC = () => {
       {madhhabNotes && madhhabNotes.length > 0 && (
         <Card style={[styles.card, { borderColor: '#10b981', borderWidth: 1 }]}>
           <Card.Title
-            title="📚 ملاحظات مذهبية"
+            title={t('resultsMadhabNotesCard')}
             titleStyle={{ color: '#065f46' }}
           />
           <Card.Content>
@@ -394,7 +396,7 @@ const ResultsScreen: React.FC = () => {
       {blockedHeirs && blockedHeirs.length > 0 && (
         <Card style={[styles.card, { borderColor: '#ef4444', borderWidth: 1 }]}>
           <Card.Title
-            title="🚫 الورثة المحجوبون"
+            title={t('resultsBlockedHeirsCard')}
             titleStyle={{ color: '#991b1b' }}
           />
           <Card.Content>
@@ -416,7 +418,7 @@ const ResultsScreen: React.FC = () => {
       {/* Chart */}
       {chartData.length > 0 && (
         <Card style={styles.card}>
-          <Card.Title title="📊 التوزيع المرئي" />
+          <Card.Title title={t('resultsChartCard')} />
           <Card.Content>
             <PieChart
               data={chartData}
@@ -447,14 +449,14 @@ const ResultsScreen: React.FC = () => {
 
       {/* Results Table */}
       <Card style={styles.card}>
-        <Card.Title title="جدول التوزيع" />
+        <Card.Title title={t('resultsTableCard')} />
         <Card.Content>
           <DataTable>
             <DataTable.Header>
-              <DataTable.Title>الوارث</DataTable.Title>
-              <DataTable.Title numeric>العدد</DataTable.Title>
-              <DataTable.Title numeric>الحصة</DataTable.Title>
-              <DataTable.Title numeric>المبلغ</DataTable.Title>
+              <DataTable.Title>{t('resultsColumnHeir')}</DataTable.Title>
+              <DataTable.Title numeric>{t('resultsColumnCount')}</DataTable.Title>
+              <DataTable.Title numeric>{t('resultsColumnShare')}</DataTable.Title>
+              <DataTable.Title numeric>{t('resultsColumnAmount')}</DataTable.Title>
             </DataTable.Header>
 
             {shares?.flatMap((share: HeirShare) => {
@@ -490,7 +492,7 @@ const ResultsScreen: React.FC = () => {
                 rows.push(
                   <DataTable.Row key={share.key + '_per'} style={styles.perPersonRow}>
                     <DataTable.Cell>
-                      <Text style={styles.perPersonLabel}>لكل فرد</Text>
+                      <Text style={styles.perPersonLabel}>{t('resultsPerPerson')}</Text>
                     </DataTable.Cell>
                     <DataTable.Cell numeric>{''}</DataTable.Cell>
                     <DataTable.Cell numeric>
@@ -515,7 +517,7 @@ const ResultsScreen: React.FC = () => {
       {/* Calculation Steps */}
       {steps && steps.length > 0 && (
         <Card style={styles.card}>
-          <Card.Title title="📝 خطوات الحساب" />
+          <Card.Title title={t('resultsStepsCard')} />
           <Card.Content>
             {steps.map((step: CalculationStep, index: number) => (
               <View key={index} style={styles.step}>
@@ -534,7 +536,7 @@ const ResultsScreen: React.FC = () => {
 
       {/* Action Buttons */}
       <Card style={styles.card}>
-        <Card.Title title="إجراءات" />
+        <Card.Title title={t('resultsActionsCard')} />
         <Card.Content>
           <View style={styles.actionRow}>
             <Button
@@ -544,7 +546,7 @@ const ResultsScreen: React.FC = () => {
               style={styles.actionButton}
               labelStyle={appTypography.labelLarge}
             >
-              نسخ
+              {t('resultsCopyButton')}
             </Button>
             <Button
               mode="outlined"
@@ -571,7 +573,7 @@ const ResultsScreen: React.FC = () => {
               style={styles.actionButton}
               labelStyle={appTypography.labelLarge}
             >
-              طباعة
+              {t('resultsPrintButton')}
             </Button>
           </View>
         </Card.Content>

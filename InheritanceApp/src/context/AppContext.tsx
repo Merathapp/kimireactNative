@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { useColorScheme, I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../i18n';
 import { typography, appTypography } from '../constants/theme';
 import { CalculationResult } from '../utils/InheritanceEngine';
 import { MadhabType } from '../constants/FiqhDatabase';
@@ -74,7 +75,7 @@ let auditIdCounter = 0;
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme();
   const [currentMadhab, setCurrentMadhabState] = useState<MadhabType>('shafii');
-  const [language, setLanguageState] = useState<LanguageType>('ar');
+  const [language, setLanguageState] = useState<LanguageType>((i18n.language === 'ar' ? 'ar' : 'en') as LanguageType);
   const [isDarkMode, setIsDarkModeState] = useState(colorScheme === 'dark');
   const [deceasedGender, setDeceasedGender] = useState<GenderType>('male');
   const [currency, setCurrencyState] = useState<CurrencyType>('SAR');
@@ -115,6 +116,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setLanguage = useCallback((lang: LanguageType) => {
     setLanguageState(lang);
+    i18n.changeLanguage(lang);
     saveSettings(currentMadhab, lang, isDarkMode, currency);
     if (I18nManager.isRTL !== (lang === 'ar')) {
       I18nManager.forceRTL(lang === 'ar');

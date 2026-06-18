@@ -18,6 +18,7 @@ import {
 } from 'react-native-paper';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { MadhabType } from '../constants/FiqhDatabase';
 import {
@@ -35,6 +36,7 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 
 const ScenariosScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
+  const { t } = useTranslation();
   const { setCurrentMadhab, updateEstateField, updateHeir, resetHeirs, setDeceasedGender, currentMadhab, estate, heirs, deceasedGender } = useApp();
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [visible, setVisible] = useState(false);
@@ -51,12 +53,12 @@ const ScenariosScreen: React.FC = () => {
 
   const handleLoad = (s: Scenario) => {
     Alert.alert(
-      'تحميل السيناريو',
-      `هل تريد تحميل "${s.name}"؟`,
+      t('scenariosLoadAlertTitle'),
+      t('scenariosLoadAlertMessage', { name: s.name }),
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'تحميل',
+          text: t('scenariosLoadButton'),
           onPress: () => {
             resetHeirs();
             setCurrentMadhab(s.madhab as MadhabType);
@@ -71,10 +73,10 @@ const ScenariosScreen: React.FC = () => {
   };
 
   const handleDelete = (s: Scenario) => {
-    Alert.alert('حذف', `حذف "${s.name}"؟`, [
-      { text: 'إلغاء', style: 'cancel' },
+    Alert.alert(t('scenariosDeleteAlertTitle'), t('scenariosDeleteAlertMessage', { name: s.name }), [
+      { text: t('cancel'), style: 'cancel' },
       {
-        text: 'حذف',
+        text: t('scenariosDeleteButton'),
         style: 'destructive',
         onPress: async () => {
           await deleteScenario(s.id);
@@ -88,15 +90,15 @@ const ScenariosScreen: React.FC = () => {
     try {
       const list = await loadAllScenarios();
       if (list.length === 0) {
-        Alert.alert('لا توجد سيناريوهات', 'لا يوجد سيناريوهات للتصدير');
+        Alert.alert(t('scenariosNoScenariosTitle'), t('scenariosNoScenariosExport'));
         return;
       }
       const json = JSON.stringify(list, null, 2);
       const uri = cacheDirectory + 'merath_scenarios.json';
       await writeAsStringAsync(uri, json, { encoding: 'utf8' });
-      await Sharing.shareAsync(uri, { mimeType: 'application/json', dialogTitle: 'تصدير السيناريوهات' });
+      await Sharing.shareAsync(uri, { mimeType: 'application/json', dialogTitle: t('scenariosExportTitle') });
     } catch {
-      Alert.alert('خطأ', 'فشل تصدير السيناريوهات');
+      Alert.alert(t('error'), t('scenariosExportError'));
     }
   };
 
@@ -121,9 +123,9 @@ const ScenariosScreen: React.FC = () => {
       setImportVisible(false);
       setImportText('');
       refresh();
-      Alert.alert('تم', `تم استيراد ${parsed.length} سيناريو بنجاح`);
+      Alert.alert(t('success'), t('scenariosImportSuccess', { count: parsed.length }));
     } catch {
-      Alert.alert('خطأ', 'البيانات غير صالحة. يرجى التأكد من أن النص بصيغة JSON صحيحة.');
+      Alert.alert(t('error'), t('scenariosImportInvalid'));
     }
   };
 
@@ -133,7 +135,7 @@ const ScenariosScreen: React.FC = () => {
     setVisible(false);
     setScenarioName('');
     refresh();
-    Alert.alert('تم', 'تم حفظ السيناريو');
+    Alert.alert(t('success'), t('scenariosSavedAlert'));
   };
 
   return (
@@ -141,7 +143,7 @@ const ScenariosScreen: React.FC = () => {
       <Surface style={styles.header} elevation={2}>
         <View style={styles.headerRow}>
           <IconButton icon="arrow-right" iconColor="#fff" onPress={() => navigation.goBack()} />
-          <Text variant="headlineSmall" style={styles.headerTitle}>السيناريوهات</Text>
+          <Text variant="headlineSmall" style={styles.headerTitle}>{t('scenariosTitle')}</Text>
           <IconButton
             icon="file-export"
             iconColor="#fff"
@@ -162,9 +164,9 @@ const ScenariosScreen: React.FC = () => {
 
       {scenarios.length === 0 ? (
         <View style={styles.empty}>
-          <Text variant="bodyLarge" style={styles.emptyText}>لا توجد سيناريوهات محفوظة</Text>
+          <Text variant="bodyLarge" style={styles.emptyText}>{t('scenariosEmptyTitle')}</Text>
           <Text variant="bodyMedium" style={styles.emptySubtext}>
-            احفظ حساباتك لترجع إليها لاحقاً
+            {t('scenariosEmptySubtitle')}
           </Text>
         </View>
       ) : (
@@ -181,7 +183,7 @@ const ScenariosScreen: React.FC = () => {
               <View style={styles.chips}>
                 <Chip style={styles.chip} textStyle={styles.chipText}>{s.madhab}</Chip>
                 <Chip style={styles.chip} textStyle={styles.chipText}>
-                  {Object.keys(s.heirs).length} وارث
+                  {t('scenariosHeirCount', { count: Object.keys(s.heirs).length })}
                 </Chip>
               </View>
               <Text style={styles.scenarioDate}>
@@ -194,10 +196,10 @@ const ScenariosScreen: React.FC = () => {
 
       <Portal>
         <Dialog visible={visible} onDismiss={() => setVisible(false)}>
-          <Dialog.Title>حفظ السيناريو</Dialog.Title>
+          <Dialog.Title>{t('scenariosSaveDialogTitle')}</Dialog.Title>
           <Dialog.Content>
             <TextInput
-              label="اسم السيناريو"
+              label={t('scenariosSaveNameLabel')}
               value={scenarioName}
               onChangeText={setScenarioName}
               mode="outlined"
@@ -205,16 +207,16 @@ const ScenariosScreen: React.FC = () => {
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setVisible(false)}>إلغاء</Button>
-            <Button onPress={handleSaveCurrent} disabled={!scenarioName.trim()}>حفظ</Button>
+            <Button onPress={() => setVisible(false)}>{t('cancel')}</Button>
+            <Button onPress={handleSaveCurrent} disabled={!scenarioName.trim()}>{t('scenariosSaveButton')}</Button>
           </Dialog.Actions>
         </Dialog>
 
         <Dialog visible={importVisible} onDismiss={() => setImportVisible(false)}>
-          <Dialog.Title>استيراد سيناريوهات</Dialog.Title>
+          <Dialog.Title>{t('scenariosImportDialogTitle')}</Dialog.Title>
           <Dialog.Content>
             <Text variant="bodyMedium" style={{ marginBottom: 8, color: '#64748b' }}>
-              الصق نص JSON للسيناريوهات:
+              {t('scenariosImportDialogLabel')}
             </Text>
             <TextInput
               label="JSON"
@@ -227,8 +229,8 @@ const ScenariosScreen: React.FC = () => {
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setImportVisible(false)}>إلغاء</Button>
-            <Button onPress={handleImportConfirm} disabled={!importText.trim()}>استيراد</Button>
+            <Button onPress={() => setImportVisible(false)}>{t('cancel')}</Button>
+            <Button onPress={handleImportConfirm} disabled={!importText.trim()}>{t('scenariosImportButton')}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

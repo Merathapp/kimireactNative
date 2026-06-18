@@ -6,6 +6,10 @@ import { I18nManager, View, Text, StyleSheet } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
 import { colors, text, bg } from './src/constants/colors';
 import { Component, type ReactNode, type ErrorInfo } from 'react';
+import './src/i18n';
+
+// Enable RTL layout support at module scope (required before any UI renders)
+I18nManager.allowRTL(true);
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
@@ -95,11 +99,7 @@ const getTheme = (isDark: boolean) => {
 };
 
 const AppContent = () => {
-  const { isDarkMode, language } = useApp();
-  
-  // Force RTL for Arabic
-  I18nManager.allowRTL(language === 'ar');
-  I18nManager.forceRTL(language === 'ar');
+  const { isDarkMode } = useApp();
 
   return (
     <PaperProvider theme={getTheme(isDarkMode)}>

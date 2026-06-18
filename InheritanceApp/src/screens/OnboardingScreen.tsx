@@ -3,38 +3,40 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 
-const slides: { icon: 'calculator' | 'git-compare' | 'folder-open' | 'share-social'; title: string; description: string }[] = [
-  {
-    icon: 'calculator',
-    title: 'حساب المواريث الإسلامية',
-    description: 'قم بحساب توزيع التركة بدقة وفقاً للشريعة الإسلامية وبأكثر من مذهب فقهي',
-  },
-  {
-    icon: 'git-compare',
-    title: 'مقارنة المذاهب',
-    description: 'قارن نتائج التوزيع بين المذاهب الأربعة: الحنفي، المالكي، الشافعي، والحنبلي',
-  },
-  {
-    icon: 'folder-open',
-    title: 'حفظ السيناريوهات',
-    description: 'احفظ حساباتك لتراجعها لاحقاً، وقم بتصدير واستيراد السيناريوهات بسهولة',
-  },
-  {
-    icon: 'share-social',
-    title: 'مشاركة النتائج',
-    description: 'شارك نتائج الحساب مع العائلة والمستشارين الشرعيين عبر PDF أو CSV أو نص',
-  },
-];
-
 const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides: { icon: 'calculator' | 'git-compare' | 'folder-open' | 'share-social'; title: string; description: string }[] = [
+    {
+      icon: 'calculator',
+      title: t('onboardingSlide1Title'),
+      description: t('onboardingSlide1Desc'),
+    },
+    {
+      icon: 'git-compare',
+      title: t('onboardingSlide2Title'),
+      description: t('onboardingSlide2Desc'),
+    },
+    {
+      icon: 'folder-open',
+      title: t('onboardingSlide3Title'),
+      description: t('onboardingSlide3Desc'),
+    },
+    {
+      icon: 'share-social',
+      title: t('onboardingSlide4Title'),
+      description: t('onboardingSlide4Desc'),
+    },
+  ];
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
@@ -59,7 +61,7 @@ const OnboardingScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.skipContainer}>
         <Button onPress={handleSkip} textColor="#94a3b8" labelStyle={styles.skipText}>
-          تخطي
+          {t('onboardingSkip')}
         </Button>
       </View>
 
@@ -92,7 +94,7 @@ const OnboardingScreen: React.FC = () => {
               style={styles.startButton}
               labelStyle={styles.startButtonLabel}
             >
-              ابدأ الآن
+              {t('onboardingStart')}
             </Button>
           ) : (
             <Button
@@ -101,7 +103,7 @@ const OnboardingScreen: React.FC = () => {
               style={styles.nextButton}
               labelStyle={styles.nextButtonLabel}
             >
-              التالي
+              {t('onboardingNext')}
             </Button>
           )}
         </View>

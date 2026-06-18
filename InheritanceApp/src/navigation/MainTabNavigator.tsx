@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useApp } from '../context/AppContext';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
 import { fonts } from '../constants/theme';
@@ -26,8 +26,7 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const MainTabNavigator = () => {
-  const { language } = useApp();
-  const isRTL = language === 'ar';
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const getIconName = (routeName: string, focused: boolean) => {
@@ -88,56 +87,56 @@ const MainTabNavigator = () => {
         name="Calculator" 
         component={CalculatorScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'الحاسبة' : 'Calculator',
-          tabBarAccessibilityLabel: isRTL ? 'حاسبة المواريث' : 'Inheritance Calculator'
+          tabBarLabel: t('navCalculator'),
+          tabBarAccessibilityLabel: t('navCalculatorA11y')
         }}
       />
       <Tab.Screen 
         name="Results" 
         component={ResultsScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'النتائج' : 'Results',
-          tabBarAccessibilityLabel: isRTL ? 'نتائج الحساب' : 'Calculation Results'
+          tabBarLabel: t('navResults'),
+          tabBarAccessibilityLabel: t('navResultsA11y')
         }}
       />
       <Tab.Screen 
         name="Rules" 
         component={RulesScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'القواعد' : 'Rules',
-          tabBarAccessibilityLabel: isRTL ? 'قواعد المواريث' : 'Inheritance Rules'
+          tabBarLabel: t('navRules'),
+          tabBarAccessibilityLabel: t('navRulesA11y')
         }}
       />
       <Tab.Screen 
         name="Compare" 
         component={CompareScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'مقارنة' : 'Compare',
-          tabBarAccessibilityLabel: isRTL ? 'مقارنة المذاهب' : 'Compare Madhabs'
+          tabBarLabel: t('navCompare'),
+          tabBarAccessibilityLabel: t('navCompareA11y')
         }}
       />
       <Tab.Screen 
         name="History" 
         component={HistoryScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'السجل' : 'History',
-          tabBarAccessibilityLabel: isRTL ? 'سجل الحسابات' : 'Calculation History'
+          tabBarLabel: t('navHistory'),
+          tabBarAccessibilityLabel: t('navHistoryA11y')
         }}
       />
       <Tab.Screen 
         name="Audit" 
         component={AuditScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'السجل' : 'Audit',
-          tabBarAccessibilityLabel: isRTL ? 'سجل المراجعة' : 'Audit Log'
+          tabBarLabel: t('navAudit'),
+          tabBarAccessibilityLabel: t('navAuditA11y')
         }}
       />
       <Tab.Screen 
         name="Tests" 
         component={TestsScreen} 
         options={{ 
-          tabBarLabel: isRTL ? 'اختبارات' : 'Tests',
-          tabBarAccessibilityLabel: isRTL ? 'اختبارات النظام' : 'System Tests'
+          tabBarLabel: t('navTests'),
+          tabBarAccessibilityLabel: t('navTestsA11y')
         }}
       />
     </Tab.Navigator>

@@ -7,6 +7,7 @@ import {
   Surface,
   DataTable
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { FIQH_DATABASE, MadhabType } from '../constants/FiqhDatabase';
 import { colors } from '../constants/colors';
 
@@ -54,38 +55,39 @@ const fardTable = [
   { fraction: 'السدس (⅙)', heirs: 'الأب مع الفرع، الأم مع الفرع أو جمع الإخوة، الجد، الجدة، بنت الابن تكملة، الأخت لأب تكملة، الأخ لأم الواحد' }
 ];
 
-const hijabTable = [
-  { blocked: 'الجد', blocker: 'الأب', type: 'حجب حرمان' },
-  { blocked: 'الجدة لأب', blocker: 'الأم أو الأب', type: 'حجب حرمان' },
-  { blocked: 'الجدة لأم', blocker: 'الأم', type: 'حجب حرمان' },
-  { blocked: 'ابن الابن', blocker: 'الابن', type: 'حجب حرمان' },
-  { blocked: 'بنت الابن', blocker: 'الابن، أو بنتان بدون معصب', type: 'حجب حرمان' },
-  { blocked: 'الإخوة الأشقاء', blocker: 'الابن، ابن الابن، الأب', type: 'حجب حرمان' },
-  { blocked: 'الإخوة لأب', blocker: 'الأخ الشقيق، أو من يحجب الأشقاء', type: 'حجب حرمان' },
-  { blocked: 'الإخوة لأم', blocker: 'الفرع الوارث، الأب، الجد', type: 'حجب حرمان' }
-];
-
 const RulesScreen: React.FC = () => {
+  const { t } = useTranslation();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  const hijabTable = [
+    { blocked: t('rulesHijabBlockedGrandfather'), blocker: t('rulesHijabBlockerFather'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedPaternalGrandmother'), blocker: t('rulesHijabBlockerMotherOrFather'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedMaternalGrandmother'), blocker: t('rulesHijabBlockerMother'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedSonsSon'), blocker: t('rulesHijabBlockerSon'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedSonsDaughter'), blocker: t('rulesHijabBlockerSonOrTwoDaughters'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedFullSiblings'), blocker: t('rulesHijabBlockerSonGrandsonFather'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedPaternalSiblings'), blocker: t('rulesHijabBlockerFullBrother'), type: t('rulesHijabType') },
+    { blocked: t('rulesHijabBlockedMaternalSiblings'), blocker: t('rulesHijabBlockerDescendantFatherGrandfather'), type: t('rulesHijabType') }
+  ];
+
   return (
     <ScrollView style={styles.container}>
       <Surface style={styles.header} elevation={2}>
         <Text variant="headlineSmall" style={styles.headerTitle}>
-          📚 القواعد الفقهية
+          {t('rulesTitle')}
         </Text>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          قواعد وأسس حساب المواريث
+          {t('rulesSubtitle')}
         </Text>
       </Surface>
 
       {/* Madhab Rules */}
       <Card style={styles.card}>
-        <Card.Title title="قواعد المذاهب الأربعة" />
+        <Card.Title title={t('rulesMadhabCardTitle')} />
         <Card.Content>
           <View style={styles.madhabGrid}>
             {madhabs.map(madhab => {
@@ -113,7 +115,7 @@ const RulesScreen: React.FC = () => {
 
       {/* Special Cases */}
       <Card style={styles.card}>
-        <Card.Title title="⚡ الحالات الخاصة المدعومة" />
+        <Card.Title title={t('rulesSpecialCasesCardTitle')} />
         <Card.Content>
           {specialCases.map((c, index) => (
             <Surface
@@ -131,13 +133,13 @@ const RulesScreen: React.FC = () => {
 
       {/* Fard Table */}
       <Card style={styles.card}>
-        <Card.Title title="📊 جدول الفروض المقدرة" />
+        <Card.Title title={t('rulesFardTableCardTitle')} />
         <Card.Content>
           <ScrollView horizontal>
             <DataTable>
               <DataTable.Header>
-                <DataTable.Title style={styles.fardColumn}>الفرض</DataTable.Title>
-                <DataTable.Title style={styles.heirsColumn}>أصحابه</DataTable.Title>
+                <DataTable.Title style={styles.fardColumn}>{t('rulesFardColumnShare')}</DataTable.Title>
+                <DataTable.Title style={styles.heirsColumn}>{t('rulesFardColumnHeirs')}</DataTable.Title>
               </DataTable.Header>
               {fardTable.map((row, index) => (
                 <DataTable.Row key={index}>
@@ -156,14 +158,14 @@ const RulesScreen: React.FC = () => {
 
       {/* Hijab Rules */}
       <Card style={styles.card}>
-        <Card.Title title="🚫 قواعد الحجب" />
+        <Card.Title title={t('rulesHijabCardTitle')} />
         <Card.Content>
           <ScrollView horizontal>
             <DataTable>
               <DataTable.Header>
-                <DataTable.Title style={styles.hijabColumn}>المحجوب</DataTable.Title>
-                <DataTable.Title style={styles.hijabColumn}>الحاجب</DataTable.Title>
-                <DataTable.Title style={styles.hijabColumn}>نوع الحجب</DataTable.Title>
+                <DataTable.Title style={styles.hijabColumn}>{t('rulesHijabColumnBlocked')}</DataTable.Title>
+                <DataTable.Title style={styles.hijabColumn}>{t('rulesHijabColumnBlocker')}</DataTable.Title>
+                <DataTable.Title style={styles.hijabColumn}>{t('rulesHijabColumnType')}</DataTable.Title>
               </DataTable.Header>
               {hijabTable.map((row, index) => (
                 <DataTable.Row key={index}>
@@ -185,35 +187,34 @@ const RulesScreen: React.FC = () => {
 
       {/* Inheritance Order */}
       <Card style={styles.card}>
-        <Card.Title title="📋 ترتيب الورثة" />
+        <Card.Title title={t('rulesHeirOrderCardTitle')} />
         <Card.Content>
           <List.Section>
             <List.Accordion
-              title="1. أصحاب الفروض"
+              title={t('rulesAccordionFard')}
               expanded={expandedSection === 'fard'}
               onPress={() => toggleSection('fard')}
             >
               <Text style={styles.accordionContent}>
-                الزوج/الزوجة، الأب، الأم، الجد/الجدات، البنات/بنات الابن، الأخوات الشقيقات/لأب، الإخوة لأم
+                {t('rulesAccordionFardContent')}
               </Text>
             </List.Accordion>
             <List.Accordion
-              title="2. العصبات"
+              title={t('rulesAccordionAsaba')}
               expanded={expandedSection === 'asaba'}
               onPress={() => toggleSection('asaba')}
             >
               <Text style={styles.accordionContent}>
-                الابن/ابن الابن (بالنفس)، الأب/الجد (بالنفس)، الإخوة الأشقاء/لأب (بالنفس)،
-                الأخوات (مع الغير)، أبناء الإخوة، الأعمام، أبناء الأعمام
+                {t('rulesAccordionAsabaContent')}
               </Text>
             </List.Accordion>
             <List.Accordion
-              title="3. ذوو الأرحام"
+              title={t('rulesAccordionBloodRelatives')}
               expanded={expandedSection === 'blood'}
               onPress={() => toggleSection('blood')}
             >
               <Text style={styles.accordionContent}>
-                أولاد البنات (صنف 1)، أولاد الأخوات (صنف 2)، الأخوال والخالات (صنف 3)، العمات (صنف 4)
+                {t('rulesAccordionBloodRelativesContent')}
               </Text>
             </List.Accordion>
           </List.Section>

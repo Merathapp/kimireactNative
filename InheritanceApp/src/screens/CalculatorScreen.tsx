@@ -19,7 +19,8 @@ import {
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useApp } from '../context/AppContext';
+import { useTranslation } from 'react-i18next';
+import { useApp, currencySymbols } from '../context/AppContext';
 import { InheritanceEngine } from '../utils/InheritanceEngine';
 import { validateAll } from '../utils/Validation';
 import { getMadhabConfig } from '../constants/FiqhDatabase';
@@ -112,6 +113,7 @@ const quickTests: { key: string; label: string; heirs: Record<string, number> }[
 
 const CalculatorScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
+  const { t } = useTranslation();
   const {
     currentMadhab,
     setCurrentMadhab,
@@ -127,9 +129,11 @@ const CalculatorScreen: React.FC = () => {
     hasPregnancy,
     setHasPregnancy,
     hasMissingHeir,
-    setHasMissingHeir
+    setHasMissingHeir,
+    currency
   } = useApp();
 
+  const currencySymbol = currencySymbols[currency];
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['الأزواج', 'الأصول (الآباء والأجداد)']);
   const [menuVisible, setMenuVisible] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -146,13 +150,13 @@ const CalculatorScreen: React.FC = () => {
     const validation = validateAll(estate, heirs);
 
     if (!validation.isValid) {
-      Alert.alert('أخطاء في البيانات', validation.errors.join('\n'));
-      addAuditLog('حساب الميراث', 'error', validation.errors.join(', '));
+      Alert.alert(t('calculatorAlertDataErrors'), validation.errors.join('\n'));
+      addAuditLog(t('auditLogCalculate'), 'error', validation.errors.join(', '));
       return;
     }
 
     if (validation.warnings.length > 0) {
-      Alert.alert('تحذيرات', validation.warnings.join('\n') + '\n\nسيتم المتابعة مع التصحيح التلقائي.');
+      Alert.alert(t('calculatorAlertWarnings'), validation.warnings.join('\n') + '\n\n' + t('calculatorContinueNote'));
     }
 
     setCalculating(true);
@@ -162,17 +166,17 @@ const CalculatorScreen: React.FC = () => {
 
       if (result.success) {
         setLastResult(result);
-        addAuditLog('حساب الميراث', 'success',
-          `تم الحساب بنجاح - التركة: ${estate.total.toLocaleString('en-US')} - المذهب: ${result.madhhabName}`
+        addAuditLog(t('auditLogCalculate'), 'success',
+          t('auditLogCalculateSuccess', { estate: estate.total.toLocaleString('en-US'), madhab: result.madhhabName })
         );
         navigation.navigate('Results');
       } else {
-        Alert.alert('خطأ في الحساب', result.errors?.join('\n') || 'حدث خطأ غير معروف');
-        addAuditLog('حساب الميراث', 'error', result.errors?.join(', ') || 'خطأ غير معروف');
+        Alert.alert(t('calculatorAlertCalcError'), result.errors?.join('\n') || t('calculatorAlertUnknownError'));
+        addAuditLog(t('auditLogCalculate'), 'error', result.errors?.join(', ') || t('calculatorAlertUnknownError'));
       }
     } catch (error: any) {
-      Alert.alert('خطأ', error.message);
-      addAuditLog('حساب الميراث', 'error', error.message);
+      Alert.alert(t('calculatorAlertError'), error.message);
+      addAuditLog(t('auditLogCalculate'), 'error', error.message);
     } finally {
       setCalculating(false);
     }
@@ -182,25 +186,25 @@ const CalculatorScreen: React.FC = () => {
     const validation = validateAll(estate, heirs);
 
     if (validation.isValid && validation.warnings.length === 0) {
-      Alert.alert('✅ التحقق', 'جميع البيانات صحيحة!');
-      addAuditLog('التحقق', 'success', 'البيانات صحيحة');
+      Alert.alert(t('calculatorAlertSuccess'), t('calculatorAlertValid'));
+      addAuditLog(t('auditLogValidate'), 'success', t('auditLogValidateSuccess'));
     } else if (validation.isValid) {
-      Alert.alert('⚠️ تحذيرات', validation.warnings.join('\n') + '\n\nيمكنك المتابعة مع التصحيح التلقائي.');
-      addAuditLog('التحقق', 'warning', validation.warnings.join(', '));
+      Alert.alert(t('calculatorAlertWarnings'), validation.warnings.join('\n') + '\n\n' + t('calculatorAutoCorrectNote'));
+      addAuditLog(t('auditLogValidate'), 'warning', validation.warnings.join(', '));
     } else {
-      Alert.alert('❌ أخطاء', validation.errors.join('\n'));
-      addAuditLog('التحقق', 'error', validation.errors.join(', '));
+      Alert.alert(t('calculatorAlertErrors'), validation.errors.join('\n'));
+      addAuditLog(t('auditLogValidate'), 'error', validation.errors.join(', '));
     }
   }, [estate, heirs, addAuditLog]);
 
   const handleReset = useCallback(() => {
     Alert.alert(
-      'إعادة تعيين',
-      'هل أنت متأكد من إعادة تعيين جميع البيانات؟',
+      t('calculatorResetAlertTitle'),
+      t('calculatorResetAlertMessage'),
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('calculatorAlertCancel'), style: 'cancel' },
         {
-          text: 'تأكيد',
+          text: t('calculatorAlertConfirm'),
           style: 'destructive',
           onPress: () => {
             resetHeirs();
@@ -219,7 +223,7 @@ const CalculatorScreen: React.FC = () => {
     Object.entries(testHeirs).forEach(([key, value]) => {
       updateHeir(key, value);
     });
-    addAuditLog('اختبار سريع', 'info', 'تم تحميل حالة اختبار');
+    addAuditLog(t('auditLogQuickTest'), 'info', t('auditLogQuickTestLoaded'));
   }, [resetHeirs, updateHeir, addAuditLog]);
 
   const madhabConfig = getMadhabConfig(currentMadhab);
@@ -233,18 +237,18 @@ const CalculatorScreen: React.FC = () => {
         {/* Header */}
         <Surface style={styles.header} elevation={2}>
           <Text style={[appTypography.headlineMedium, styles.headerTitle]}>
-            ⚖️ حاسبة المواريث
+            {t('calculatorTitle')}
           </Text>
           <Text style={[appTypography.bodyMedium, styles.headerSubtitle]}>
-            النظام الاحترافي المتكامل - الإصدار 5.0
+            {t('calculatorSubtitle')}
           </Text>
         </Surface>
 
         {/* Madhab Selection - UPDATED WITH DROPDOWN */}
         <Card style={styles.card}>
           <Card.Title
-            title="المذهب الفقهي"
-            subtitle="اختر المذهب المناسب"
+            title={t('calculatorMadhabCardTitle')}
+            subtitle={t('calculatorMadhabCardSubtitle')}
             left={props => <Text {...props} style={styles.cardIcon}>🕌</Text>}
             titleStyle={appTypography.titleLarge}
             subtitleStyle={appTypography.bodyMedium}
@@ -257,7 +261,7 @@ const CalculatorScreen: React.FC = () => {
             
             <Surface style={[styles.madhabInfo, { backgroundColor: `${madhabConfig.color}15` }]}>
               <Text style={[appTypography.titleMedium, styles.madhabInfoTitle, { color: madhabConfig.color }]}>
-                {madhabConfig.icon} المذهب {madhabConfig.name}
+                {madhabConfig.icon} {t('calculatorMadhabDisplay', { name: madhabConfig.name })}
               </Text>
               <Text style={[appTypography.bodyMedium, styles.madhabInfoDesc]}>
                 {madhabConfig.description}
@@ -269,7 +273,7 @@ const CalculatorScreen: React.FC = () => {
         {/* Deceased Info */}
         <Card style={styles.card}>
           <Card.Title
-            title="بيانات المتوفى"
+            title={t('calculatorDeceasedCardTitle')}
             left={props => <Text {...props} style={styles.cardIcon}>👤</Text>}
             titleStyle={appTypography.titleLarge}
           />
@@ -281,9 +285,9 @@ const CalculatorScreen: React.FC = () => {
                 icon="gender-male"
                 style={[styles.genderButton, deceasedGender === 'male' && styles.genderSelected]}
                 labelStyle={appTypography.labelLarge}
-                accessibilityLabel="تحديد جنس المتوفى ذكر"
+                accessibilityLabel={t('calculatorGenderMaleA11y')}
               >
-                ذكر
+                {t('calculatorGenderMale')}
               </Button>
               <Button
                 mode={deceasedGender === 'female' ? 'contained' : 'outlined'}
@@ -291,9 +295,9 @@ const CalculatorScreen: React.FC = () => {
                 icon="gender-female"
                 style={[styles.genderButton, deceasedGender === 'female' && styles.genderSelectedFemale]}
                 labelStyle={appTypography.labelLarge}
-                accessibilityLabel="تحديد جنس المتوفى أنثى"
+                accessibilityLabel={t('calculatorGenderFemaleA11y')}
               >
-                أنثى
+                {t('calculatorGenderFemale')}
               </Button>
             </View>
           </Card.Content>
@@ -302,27 +306,27 @@ const CalculatorScreen: React.FC = () => {
         {/* Estate Data */}
         <Card style={styles.card}>
           <Card.Title
-            title="بيانات التركة والخصومات"
-            subtitle="أدخل قيمة التركة والخصومات"
+            title={t('calculatorEstateCardTitle')}
+            subtitle={t('calculatorEstateCardSubtitle')}
             left={props => <Text {...props} style={styles.cardIcon}>💰</Text>}
             titleStyle={appTypography.titleLarge}
             subtitleStyle={appTypography.bodyMedium}
           />
           <Card.Content>
             <TextInput
-              label="إجمالي التركة *"
+              label={t('calculatorEstateTotalLabel')}
               value={estate.total.toString()}
               onChangeText={text => updateEstateField('total', parseFloat(text) || 0)}
               keyboardType="numeric"
               mode="outlined"
               style={styles.input}
-              right={<TextInput.Affix text="ر.س" />}
+              right={<TextInput.Affix text={currencySymbol} />}
             />
-            <HelperText type="info" style={appTypography.bodySmall}>قيمة جميع الممتلكات</HelperText>
+            <HelperText type="info" style={appTypography.bodySmall}>{t('calculatorEstateTotalHelper')}</HelperText>
 
             <View style={styles.rowInputs}>
               <TextInput
-                label="تكاليف التجهيز"
+                label={t('calculatorFuneralLabel')}
                 value={estate.funeral.toString()}
                 onChangeText={text => updateEstateField('funeral', parseFloat(text) || 0)}
                 keyboardType="numeric"
@@ -330,7 +334,7 @@ const CalculatorScreen: React.FC = () => {
                 style={[styles.input, styles.flex1]}
               />
               <TextInput
-                label="الديون المستحقة"
+                label={t('calculatorDebtsLabel')}
                 value={estate.debts.toString()}
                 onChangeText={text => updateEstateField('debts', parseFloat(text) || 0)}
                 keyboardType="numeric"
@@ -340,7 +344,7 @@ const CalculatorScreen: React.FC = () => {
             </View>
 
             <TextInput
-              label="الوصية الشرعية"
+              label={t('calculatorWillLabel')}
               value={estate.will.toString()}
               onChangeText={text => updateEstateField('will', parseFloat(text) || 0)}
               keyboardType="numeric"
@@ -348,11 +352,11 @@ const CalculatorScreen: React.FC = () => {
               style={styles.input}
               right={<TextInput.Affix text="≤ ⅓" />}
             />
-            <HelperText type="info" style={appTypography.bodySmall}>≤ ثلث الباقي</HelperText>
+            <HelperText type="info" style={appTypography.bodySmall}>{t('calculatorWillHelper')}</HelperText>
 
             <Surface style={styles.notice}>
               <Text style={[appTypography.bodySmall, styles.noticeText]}>
-                ⚠️ ترتيب الحقوق الشرعي: ١. تكاليف التجهيز ← ٢. سداد الديون ← ٣. الوصية (≤ ⅓) ← ٤. الإرث
+                {t('calculatorNoticeText')}
               </Text>
             </Surface>
           </Card.Content>
@@ -361,31 +365,31 @@ const CalculatorScreen: React.FC = () => {
         {/* Special Cases: Pregnancy / Missing Heir */}
         <Card style={styles.card}>
           <Card.Title
-            title="حالات خاصة"
+            title={t('calculatorSpecialCasesCardTitle')}
             left={props => <Text {...props} style={styles.cardIcon}>⚠️</Text>}
             titleStyle={appTypography.titleLarge}
           />
           <Card.Content>
             <View style={styles.switchRow}>
-              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>هناك حمل (امرأة حامل)</Text>
+              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>{t('calculatorPregnancyLabel')}</Text>
               <Button
                 mode={hasPregnancy ? 'contained' : 'outlined'}
                 onPress={() => setHasPregnancy(!hasPregnancy)}
                 style={[styles.switchButton, hasPregnancy && { backgroundColor: '#f59e0b' }]}
                 labelStyle={appTypography.labelLarge}
               >
-                {hasPregnancy ? 'نعم' : 'لا'}
+                {hasPregnancy ? t('calculatorYes') : t('calculatorNo')}
               </Button>
             </View>
             <View style={styles.switchRow}>
-              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>هناك مفقود (وارث مفقود)</Text>
+              <Text style={[appTypography.bodyLarge, styles.switchLabel]}>{t('calculatorMissingHeirLabel')}</Text>
               <Button
                 mode={hasMissingHeir ? 'contained' : 'outlined'}
                 onPress={() => setHasMissingHeir(!hasMissingHeir)}
                 style={[styles.switchButton, hasMissingHeir && { backgroundColor: '#f59e0b' }]}
                 labelStyle={appTypography.labelLarge}
               >
-                {hasMissingHeir ? 'نعم' : 'لا'}
+                {hasMissingHeir ? t('calculatorYes') : t('calculatorNo')}
               </Button>
             </View>
           </Card.Content>
@@ -397,8 +401,8 @@ const CalculatorScreen: React.FC = () => {
         {/* Heirs Section */}
         <Card style={styles.card}>
           <Card.Title
-            title="تحديد الورثة"
-            subtitle="أدخل عدد الورثة في كل فئة"
+            title={t('calculatorHeirsCardTitle')}
+            subtitle={t('calculatorHeirsCardSubtitle')}
             left={props => <Text {...props} style={styles.cardIcon}>👥</Text>}
             titleStyle={appTypography.titleLarge}
             subtitleStyle={appTypography.bodyMedium}
@@ -416,7 +420,7 @@ const CalculatorScreen: React.FC = () => {
                   style={styles.quickTestButton}
                   labelStyle={appTypography.labelLarge}
                 >
-                  حالات اختبار سريعة
+                  {t('calculatorQuickTestsButton')}
                 </Button>
               }
             >
@@ -484,11 +488,11 @@ const CalculatorScreen: React.FC = () => {
             icon="calculator"
             style={[styles.button, styles.calculateButton]}
             labelStyle={[appTypography.labelLarge, styles.buttonLabel]}
-            accessibilityLabel="حساب المواريث"
+            accessibilityLabel={t('calculatorCalculateA11y')}
             loading={calculating}
             disabled={calculating}
           >
-            احسب المواريث
+            {t('calculatorCalculateButton')}
           </Button>
 
           <View style={styles.secondaryButtons}>
@@ -498,9 +502,9 @@ const CalculatorScreen: React.FC = () => {
               icon="check-circle"
               style={[styles.button, styles.secondaryButton]}
               labelStyle={appTypography.labelLarge}
-              accessibilityLabel="التحقق من البيانات"
+              accessibilityLabel={t('calculatorValidateA11y')}
             >
-              تحقق
+              {t('calculatorValidateButton')}
             </Button>
             <Button
               mode="outlined"
@@ -510,7 +514,7 @@ const CalculatorScreen: React.FC = () => {
               textColor="#ef4444"
               labelStyle={appTypography.labelLarge}
             >
-              إعادة
+              {t('calculatorResetButton')}
             </Button>
           </View>
         </View>

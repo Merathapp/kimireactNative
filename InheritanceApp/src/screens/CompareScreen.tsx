@@ -9,6 +9,7 @@ import {
   Surface,
   ActivityIndicator
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { InheritanceEngine } from '../utils/InheritanceEngine';
 import { FIQH_DATABASE, MadhabType } from '../constants/FiqhDatabase';
@@ -19,6 +20,7 @@ const getMadhabColor = (madhab: MadhabType): string =>
   FIQH_DATABASE.madhabs[madhab].color;
 
 const CompareScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { estate, heirs, addAuditLog } = useApp();
   const [results, setResults] = useState<Record<MadhabType, ReturnType<InheritanceEngine['calculate']> | null>>({
     shafii: null,
@@ -48,7 +50,7 @@ const CompareScreen: React.FC = () => {
 
     setResults(newResults);
     setLoading(false);
-    addAuditLog('مقارنة المذاهب', 'success', 'تم إجراء المقارنة');
+    addAuditLog(t('auditLogCompare'), 'success', t('auditLogCompareSuccess'));
   };
 
   // Collect all heirs from all results
@@ -65,17 +67,17 @@ const CompareScreen: React.FC = () => {
     <ScrollView style={styles.container}>
       <Surface style={styles.header} elevation={2}>
         <Text variant="headlineSmall" style={styles.headerTitle}>
-          📊 مقارنة المذاهب الأربعة
+          {t('compareTitle')}
         </Text>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          قارن النتائج بين المذاهب الفقهية
+          {t('compareSubtitle')}
         </Text>
       </Surface>
 
       <Card style={styles.card}>
         <Card.Content>
           <Text style={styles.infoText}>
-            سيتم مقارنة حساب الميراث للبيانات المدخلة في الحاسبة الرئيسية عبر المذاهب الأربعة.
+            {t('compareInfo')}
           </Text>
 
           <Button
@@ -86,12 +88,12 @@ const CompareScreen: React.FC = () => {
             icon="compare"
             style={styles.compareButton}
           >
-            تشغيل المقارنة
+            {t('compareRunButton')}
           </Button>
 
           {!hasData && (
             <Text style={styles.warningText}>
-              ⚠️ أدخل بيانات التركة والورثة في الحاسبة أولاً
+              {t('compareWarning')}
             </Text>
           )}
         </Card.Content>
@@ -100,18 +102,18 @@ const CompareScreen: React.FC = () => {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4f46e5" />
-          <Text style={styles.loadingText}>جاري المقارنة...</Text>
+          <Text style={styles.loadingText}>{t('compareLoading')}</Text>
         </View>
       )}
 
       {results.shafii && !loading && (
         <Card style={styles.card}>
-          <Card.Title title="نتائج المقارنة" />
+          <Card.Title title={t('compareResultsCard')} />
           <Card.Content>
             <ScrollView horizontal>
               <DataTable>
                 <DataTable.Header>
-                  <DataTable.Title style={styles.heirColumn}>الوارث</DataTable.Title>
+                  <DataTable.Title style={styles.heirColumn}>{t('compareColumnHeir')}</DataTable.Title>
                   {madhabs.map(madhab => (
                     <DataTable.Title
                       key={madhab}
@@ -172,17 +174,17 @@ const CompareScreen: React.FC = () => {
                     </Text>
                     {result.awlApplied && (
                       <Chip style={styles.summaryChip} textStyle={{ fontSize: 10 }}>
-                        عائلة
+                        {t('compareChipAwl')}
                       </Chip>
                     )}
                     {result.raddApplied && (
                       <Chip style={styles.summaryChip} textStyle={{ fontSize: 10 }}>
-                        رادّة
+                        {t('compareChipRadd')}
                       </Chip>
                     )}
                     {result.bloodRelativesApplied && (
                       <Chip style={styles.summaryChip} textStyle={{ fontSize: 10 }}>
-                        ذوو أرحام
+                        {t('compareChipBloodRelatives')}
                       </Chip>
                     )}
                   </Surface>
@@ -192,7 +194,7 @@ const CompareScreen: React.FC = () => {
 
             {/* Notes */}
             <View style={styles.notesContainer}>
-              <Text style={styles.notesTitle}>ملاحظات:</Text>
+              <Text style={styles.notesTitle}>{t('compareNotesTitle')}</Text>
               {madhabs.map(madhab => {
                 const result = results[madhab];
                 if (!result?.success || !result.madhhabNotes?.length) return null;

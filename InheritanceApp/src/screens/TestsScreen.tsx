@@ -8,26 +8,14 @@ import {
   ActivityIndicator,
   Divider,
   Menu
-} from 'react-native-paper'; // REMOVED Chip
+} from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
-import { testSuite, TestSuiteResults } from '../utils/TestSuite'; // REMOVED TestResult
+import { testSuite, TestSuiteResults } from '../utils/TestSuite';
 import { MadhabType, FIQH_DATABASE } from '../constants/FiqhDatabase';
 
-const categories = [
-  { key: 'basic', label: 'الحالات الأساسية' },
-  { key: 'umariyyah', label: 'العُمَريَّتان' },
-  { key: 'awl', label: 'العول' },
-  { key: 'radd', label: 'الرد' },
-  { key: 'hijab', label: 'الحجب' },
-  { key: 'asabaWithGhayr', label: 'عصبة مع الغير' },
-  { key: 'musharraka', label: 'المسألة المشتركة' },
-  { key: 'akdariyya', label: 'الأكدرية' },
-  { key: 'grandfatherWithSiblings', label: 'الجد مع الإخوة' },
-  { key: 'complex', label: 'حالات معقدة' },
-  { key: 'bloodRelatives', label: 'ذوو الأرحام' }
-];
-
 const TestsScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { addAuditLog } = useApp();
   const [selectedMadhab, setSelectedMadhab] = useState<MadhabType>('shafii');
   const [menuVisible, setMenuVisible] = useState(false);
@@ -40,8 +28,8 @@ const TestsScreen: React.FC = () => {
     const testResults = await testSuite.runAllTests(selectedMadhab);
     setResults(testResults);
     setLoading(false);
-    addAuditLog('الاختبارات', testResults.failed === 0 ? 'success' : 'warning',
-      `${testResults.passed}/${testResults.total} ناجح (${testResults.coverage}%)`
+    addAuditLog(t('auditLogTests'), testResults.failed === 0 ? 'success' : 'warning',
+      t('auditLogTestsResult', { passed: testResults.passed, total: testResults.total, coverage: testResults.coverage })
     );
   };
 
@@ -57,14 +45,28 @@ const TestsScreen: React.FC = () => {
 
   const getStatusBg = (passed: boolean) => passed ? '#dcfce7' : '#fee2e2';
 
+  const categories = [
+    { key: 'basic', label: t('testCategoryBasic') },
+    { key: 'umariyyah', label: t('testCategoryUmariyyah') },
+    { key: 'awl', label: t('testCategoryAwl') },
+    { key: 'radd', label: t('testCategoryRadd') },
+    { key: 'hijab', label: t('testCategoryHijab') },
+    { key: 'asabaWithGhayr', label: t('testCategoryAsaba') },
+    { key: 'musharraka', label: t('testCategoryMusharraka') },
+    { key: 'akdariyya', label: t('testCategoryAkdariyya') },
+    { key: 'grandfatherWithSiblings', label: t('testCategoryGrandfather') },
+    { key: 'complex', label: t('testCategoryComplex') },
+    { key: 'bloodRelatives', label: t('testCategoryBloodRelatives') }
+  ];
+
   return (
     <ScrollView style={styles.container}>
       <Surface style={styles.header} elevation={2}>
         <Text variant="headlineSmall" style={styles.headerTitle}>
-          ✅ اختبارات النظام
+          {t('testsTitle')}
         </Text>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          اختبار دقة الحسابات عبر 50+ حالة
+          {t('testsSubtitle')}
         </Text>
       </Surface>
 
@@ -105,7 +107,7 @@ const TestsScreen: React.FC = () => {
               icon="play"
               style={styles.runButton}
             >
-              تشغيل الاختبارات
+              {t('testsRunButton')}
             </Button>
           </View>
         </Card.Content>
@@ -114,7 +116,7 @@ const TestsScreen: React.FC = () => {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4f46e5" />
-          <Text style={styles.loadingText}>جاري تشغيل الاختبارات...</Text>
+          <Text style={styles.loadingText}>{t('testsLoading')}</Text>
         </View>
       )}
 
@@ -122,32 +124,32 @@ const TestsScreen: React.FC = () => {
         <>
           {/* Statistics */}
           <Card style={styles.card}>
-            <Card.Title title="إحصائيات الاختبارات" />
+            <Card.Title title={t('testsStatsCard')} />
             <Card.Content>
               <View style={styles.statsGrid}>
                 <Surface style={[styles.statItem, { backgroundColor: '#dcfce7' }]}>
                   <Text style={[styles.statValue, { color: '#16a34a' }]}>
                     {results.passed}
                   </Text>
-                  <Text style={styles.statLabel}>ناجحة</Text>
+                  <Text style={styles.statLabel}>{t('testsPassed')}</Text>
                 </Surface>
                 <Surface style={[styles.statItem, { backgroundColor: '#fee2e2' }]}>
                   <Text style={[styles.statValue, { color: '#dc2626' }]}>
                     {results.failed}
                   </Text>
-                  <Text style={styles.statLabel}>فاشلة</Text>
+                  <Text style={styles.statLabel}>{t('testsFailed')}</Text>
                 </Surface>
                 <Surface style={[styles.statItem, { backgroundColor: '#dbeafe' }]}>
                   <Text style={[styles.statValue, { color: '#2563eb' }]}>
                     {results.total}
                   </Text>
-                  <Text style={styles.statLabel}>إجمالي</Text>
+                  <Text style={styles.statLabel}>{t('testsTotal')}</Text>
                 </Surface>
                 <Surface style={[styles.statItem, { backgroundColor: '#f3e8ff' }]}>
                   <Text style={[styles.statValue, { color: '#7c3aed' }]}>
                     {results.coverage}%
                   </Text>
-                  <Text style={styles.statLabel}>التغطية</Text>
+                  <Text style={styles.statLabel}>{t('testsCoverage')}</Text>
                 </Surface>
               </View>
 
@@ -164,7 +166,7 @@ const TestsScreen: React.FC = () => {
                   />
                 </View>
                 <Text style={styles.progressText}>
-                  {((results.passed / results.total) * 100).toFixed(1)}% نجاح
+                  {t('testsProgress', { percent: ((results.passed / results.total) * 100).toFixed(1) })}
                 </Text>
               </View>
             </Card.Content>
@@ -172,7 +174,7 @@ const TestsScreen: React.FC = () => {
 
           {/* Test Results by Category */}
           <Card style={styles.card}>
-            <Card.Title title="نتائج الاختبارات حسب الفئة" />
+            <Card.Title title={t('testsResultsCard')} />
             <Card.Content>
               {categories.map(category => {
                 const categoryTests = results.results.filter(r => r.category === category.key);

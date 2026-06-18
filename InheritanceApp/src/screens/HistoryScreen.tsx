@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Card, Button, Surface, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useTranslation } from 'react-i18next';
 import { useApp, currencySymbols } from '../context/AppContext';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -10,6 +11,7 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 
 const HistoryScreen: React.FC = () => {
   const navigation = useNavigation<NavProp>();
+  const { t } = useTranslation();
   const { history, clearHistory, setLastResult, language, currency } = useApp();
   const currencySymbol = currencySymbols[currency];
 
@@ -23,11 +25,11 @@ const HistoryScreen: React.FC = () => {
 
   const handleClear = () => {
     Alert.alert(
-      'مسح السجل',
-      'هل أنت متأكد من مسح سجل الحسابات بالكامل؟',
+      t('historyClearAlertTitle'),
+      t('historyClearAlertMessage'),
       [
-        { text: 'إلغاء', style: 'cancel' },
-        { text: 'مسح', style: 'destructive', onPress: clearHistory },
+        { text: t('calculatorAlertCancel'), style: 'cancel' },
+        { text: t('historyClearAll'), style: 'destructive', onPress: clearHistory },
       ]
     );
   };
@@ -49,10 +51,10 @@ const HistoryScreen: React.FC = () => {
         <View style={styles.emptyContainer}>
           <IconButton icon="history" size={64} iconColor="#94a3b8" />
           <Text variant="headlineSmall" style={styles.emptyText}>
-            {language === 'ar' ? 'لا يوجد سجل' : 'No History'}
+            {t('historyEmptyTitle')}
           </Text>
           <Text variant="bodyMedium" style={styles.emptySubtext}>
-            {language === 'ar' ? 'قم بإجراء حساب لتظهر النتائج هنا' : 'Run a calculation to see results here'}
+            {t('historyEmptySubtitle')}
           </Text>
         </View>
       ) : (
@@ -60,7 +62,7 @@ const HistoryScreen: React.FC = () => {
           <Surface style={styles.header} elevation={2}>
             <View style={styles.headerRow}>
               <Text variant="headlineSmall" style={styles.headerTitle}>
-                {language === 'ar' ? 'سجل الحسابات' : 'History'}
+                {t('historyTitle')}
               </Text>
               <Button
                 mode="text"
@@ -68,7 +70,7 @@ const HistoryScreen: React.FC = () => {
                 onPress={handleClear}
                 labelStyle={styles.clearButton}
               >
-                {language === 'ar' ? 'مسح الكل' : 'Clear All'}
+                {t('historyClearAll')}
               </Button>
             </View>
           </Surface>
@@ -87,7 +89,7 @@ const HistoryScreen: React.FC = () => {
                         {item.netEstate?.toLocaleString('en-US')} {currencySymbol}
                       </Text>
                       <Text style={styles.itemHeirs}>
-                        {item.shares?.length || 0} {language === 'ar' ? 'وارث' : 'heirs'}
+                        {t('historyHeirs', { count: item.shares?.length || 0 })}
                       </Text>
                     </View>
                   </View>

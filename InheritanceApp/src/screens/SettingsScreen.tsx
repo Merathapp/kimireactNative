@@ -8,12 +8,14 @@ import {
   Menu,
   SegmentedButtons,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { FIQH_DATABASE, MadhabType } from '../constants/FiqhDatabase';
 import { colors } from '../constants/colors';
 import { useState } from 'react';
 
 const SettingsScreen: React.FC = () => {
+  const { t } = useTranslation();
   const {
     isDarkMode,
     toggleTheme,
@@ -30,14 +32,12 @@ const SettingsScreen: React.FC = () => {
 
   const handleReset = () => {
     Alert.alert(
-      language === 'ar' ? 'إعادة تعيين' : 'Reset',
-      language === 'ar'
-        ? 'هل أنت متأكد من إعادة تعيين جميع البيانات؟'
-        : 'Are you sure you want to reset all data?',
+      t('settingsResetAlertTitle'),
+      t('settingsResetAlertMessage'),
       [
-        { text: language === 'ar' ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        { text: t('calculatorAlertCancel'), style: 'cancel' },
         {
-          text: language === 'ar' ? 'تأكيد' : 'Confirm',
+          text: t('calculatorAlertConfirm'),
           style: 'destructive',
           onPress: resetHeirs,
         },
@@ -49,28 +49,26 @@ const SettingsScreen: React.FC = () => {
     <ScrollView style={styles.container}>
       <Surface style={styles.header} elevation={2}>
         <Text variant="headlineSmall" style={styles.headerTitle}>
-          {language === 'ar' ? '⚙️ الإعدادات' : '⚙️ Settings'}
+          {t('settingsTitle')}
         </Text>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          {language === 'ar' ? 'تخصيص التطبيق حسب تفضيلاتك' : 'Customize your app preferences'}
+          {t('settingsSubtitle')}
         </Text>
       </Surface>
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'المظهر' : 'Appearance'}
+          title={t('settingsAppearanceCard')}
           left={(props) => <Text {...props}>🎨</Text>}
         />
         <Card.Content>
           <View style={styles.settingRow}>
             <View style={styles.settingInfo}>
               <Text variant="titleMedium">
-                {language === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}
+                {t('settingsDarkMode')}
               </Text>
               <Text variant="bodySmall" style={styles.settingDesc}>
-                {language === 'ar'
-                  ? 'تبديل بين الوضع الفاتح والداكن'
-                  : 'Toggle between light and dark mode'}
+                {t('settingsDarkModeDesc')}
               </Text>
             </View>
             <Switch
@@ -84,7 +82,7 @@ const SettingsScreen: React.FC = () => {
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'اللغة' : 'Language'}
+          title={t('settingsLanguageCard')}
           left={(props) => <Text {...props}>🌐</Text>}
         />
         <Card.Content>
@@ -92,8 +90,8 @@ const SettingsScreen: React.FC = () => {
             value={language}
             onValueChange={(value) => setLanguage(value as 'ar' | 'en')}
             buttons={[
-              { value: 'ar', label: 'العربية' },
-              { value: 'en', label: 'English' },
+              { value: 'ar', label: t('settingsLanguageArabic') },
+              { value: 'en', label: t('settingsLanguageEnglish') },
             ]}
           />
         </Card.Content>
@@ -101,7 +99,7 @@ const SettingsScreen: React.FC = () => {
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'المذهب الافتراضي' : 'Default Madhab'}
+          title={t('settingsMadhabCard')}
           left={(props) => <Text {...props}>🕌</Text>}
         />
         <Card.Content>
@@ -132,16 +130,14 @@ const SettingsScreen: React.FC = () => {
             ))}
           </Menu>
           <Text variant="bodySmall" style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'المذهب المستخدم افتراضياً في الحاسبة'
-              : 'Default school of jurisprudence used in the calculator'}
+            {t('settingsMadhabDesc')}
           </Text>
         </Card.Content>
       </Card>
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'العملة' : 'Currency'}
+          title={t('settingsCurrencyCard')}
           left={(props) => <Text {...props}>💵</Text>}
         />
         <Card.Content>
@@ -149,9 +145,9 @@ const SettingsScreen: React.FC = () => {
             value={currency}
             onValueChange={(value) => setCurrency(value as 'SAR' | 'USD' | 'EUR')}
             buttons={[
-              { value: 'SAR', label: 'ر.س SAR' },
-              { value: 'USD', label: '$ USD' },
-              { value: 'EUR', label: '€ EUR' },
+              { value: 'SAR', label: t('settingsCurrencySAR') },
+              { value: 'USD', label: t('settingsCurrencyUSD') },
+              { value: 'EUR', label: t('settingsCurrencyEUR') },
             ]}
           />
         </Card.Content>
@@ -159,7 +155,7 @@ const SettingsScreen: React.FC = () => {
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'البيانات' : 'Data'}
+          title={t('settingsDataCard')}
           left={(props) => <Text {...props}>💾</Text>}
         />
         <Card.Content>
@@ -170,27 +166,25 @@ const SettingsScreen: React.FC = () => {
             buttonColor="#dc2626"
             textColor="#fff"
           >
-            {language === 'ar' ? 'إعادة تعيين جميع البيانات' : 'Reset All Data'}
+            {t('settingsResetButton')}
           </Button>
           <Text variant="bodySmall" style={styles.settingDesc}>
-            {language === 'ar'
-              ? 'مسح جميع البيانات المدخلة وإعادة التعيين إلى القيم الافتراضية'
-              : 'Clear all entered data and reset to default values'}
+            {t('settingsResetDesc')}
           </Text>
         </Card.Content>
       </Card>
 
       <Card style={styles.card}>
         <Card.Title
-          title={language === 'ar' ? 'حول التطبيق' : 'About'}
+          title={t('settingsAboutCard')}
           left={(props) => <Text {...props}>ℹ️</Text>}
         />
         <Card.Content>
           <Text variant="bodyMedium">
-            {language === 'ar' ? 'حاسبة المواريث الإسلامية' : 'Islamic Inheritance Calculator'}
+            {t('appName')}
           </Text>
           <Text variant="bodySmall" style={styles.settingDesc}>
-            {language === 'ar' ? 'الإصدار 5.0.0' : 'Version 5.0.0'}
+            {t('appVersion')}
           </Text>
         </Card.Content>
       </Card>

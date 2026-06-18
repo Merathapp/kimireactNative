@@ -3,7 +3,7 @@ import { View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { LinkingOptions, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useApp } from '../context/AppContext';
+import { useTranslation } from 'react-i18next';
 import MainTabNavigator from './MainTabNavigator';
 import ResultsScreen from '../screens/ResultsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -40,8 +40,7 @@ export const linking: LinkingOptions<RootStackParamList> = {
 };
 
 const AppNavigator = () => {
-  const { language } = useApp();
-  const isRTL = language === 'ar';
+  const { t } = useTranslation();
   const navigation = useNavigation<AppNavProp>();
   const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
 
@@ -96,7 +95,7 @@ const AppNavigator = () => {
         component={MainTabNavigator}
         options={{
           headerShown: true,
-          title: isRTL ? 'حاسبة المواريث الإسلامية' : 'Islamic Inheritance Calculator',
+          title: t('appName'),
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TouchableOpacity
@@ -119,21 +118,21 @@ const AppNavigator = () => {
         name="Results"
         component={ResultsScreen}
         options={{
-          title: isRTL ? 'نتائج الحساب' : 'Results',
+          title: t('resultsTitle'),
         }}
       />
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          title: isRTL ? 'الإعدادات' : 'Settings',
+          title: t('settingsTitle'),
         }}
       />
       <Stack.Screen
         name="Scenarios"
         component={ScenariosScreen}
         options={{
-          title: isRTL ? 'السيناريوهات' : 'Scenarios',
+          title: t('scenariosTitle'),
         }}
       />
     </Stack.Navigator>
