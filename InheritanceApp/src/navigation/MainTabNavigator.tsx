@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useApp } from '../context/AppContext';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../constants/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CalculatorScreen from '../screens/CalculatorScreen';
 import ResultsScreen from '../screens/ResultsScreen';
@@ -15,6 +16,7 @@ const Tab = createBottomTabNavigator();
 const MainTabNavigator = () => {
   const { language } = useApp();
   const isRTL = language === 'ar';
+  const insets = useSafeAreaInsets();
 
   const getIconName = (routeName: string, focused: boolean) => {
     switch (routeName) {
@@ -51,9 +53,9 @@ const MainTabNavigator = () => {
           backgroundColor: colors.background.primary,
           borderTopWidth: 1,
           borderTopColor: colors.border.light,
-          paddingBottom: 8,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 8,
-          height: 60,
+          height: 60 + insets.bottom,
           elevation: 8,
           shadowColor: colors.shadow.md,
           shadowOffset: { width: 0, height: -2 },
