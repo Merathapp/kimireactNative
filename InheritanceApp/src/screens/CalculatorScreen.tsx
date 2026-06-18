@@ -117,7 +117,9 @@ const CalculatorScreen: React.FC = () => {
     updateHeir,
     resetHeirs,
     setLastResult,
-    addAuditLog
+    addAuditLog,
+    deceasedGender,
+    setDeceasedGender
   } = useApp();
 
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['الأزواج', 'الأصول (الآباء والأجداد)']);
@@ -252,6 +254,37 @@ const CalculatorScreen: React.FC = () => {
           </Card.Content>
         </Card>
 
+        {/* Deceased Info */}
+        <Card style={styles.card}>
+          <Card.Title
+            title="بيانات المتوفى"
+            left={props => <Text {...props} style={styles.cardIcon}>👤</Text>}
+            titleStyle={appTypography.titleLarge}
+          />
+          <Card.Content>
+            <View style={styles.genderSelector}>
+              <Button
+                mode={deceasedGender === 'male' ? 'contained' : 'outlined'}
+                onPress={() => setDeceasedGender('male')}
+                icon="gender-male"
+                style={[styles.genderButton, deceasedGender === 'male' && styles.genderSelected]}
+                labelStyle={appTypography.labelLarge}
+              >
+                ذكر
+              </Button>
+              <Button
+                mode={deceasedGender === 'female' ? 'contained' : 'outlined'}
+                onPress={() => setDeceasedGender('female')}
+                icon="gender-female"
+                style={[styles.genderButton, deceasedGender === 'female' && styles.genderSelectedFemale]}
+                labelStyle={appTypography.labelLarge}
+              >
+                أنثى
+              </Button>
+            </View>
+          </Card.Content>
+        </Card>
+
         {/* Estate Data */}
         <Card style={styles.card}>
           <Card.Title
@@ -354,36 +387,45 @@ const CalculatorScreen: React.FC = () => {
             </Menu>
 
             {/* Heir Categories */}
-            {heirCategories.map(category => (
-              <View key={category.title} style={styles.categoryContainer}>
-                <Button
-                  mode="text"
-                  onPress={() => toggleCategory(category.title)}
-                  icon={expandedCategories.includes(category.title) ? 'chevron-up' : 'chevron-down'}
-                  style={styles.categoryButton}
-                  labelStyle={appTypography.bodyLarge}
-                >
-                  {category.title}
-                </Button>
+            {heirCategories.map(category => {
+              const isSpouses = category.title === 'الأزواج';
+              const filteredHeirs = isSpouses
+                ? category.heirs.filter(h =>
+                    deceasedGender === 'female' ? h.key === 'husband' : h.key === 'wife'
+                  )
+                : category.heirs;
 
-                {expandedCategories.includes(category.title) && (
-                  <View style={styles.heirsGrid}>
-                    {category.heirs.map(heir => (
-                      <HeirInput
-                        key={heir.key}
-                        heirKey={heir.key}
-                        label={heir.label}
-                        description={heir.description}
-                        max={heir.max}
-                        value={heirs[heir.key] || 0}
-                        onChange={value => updateHeir(heir.key, value)}
-                      />
-                    ))}
-                  </View>
-                )}
-                <Divider style={styles.divider} />
-              </View>
-            ))}
+              return (
+                <View key={category.title} style={styles.categoryContainer}>
+                  <Button
+                    mode="text"
+                    onPress={() => toggleCategory(category.title)}
+                    icon={expandedCategories.includes(category.title) ? 'chevron-up' : 'chevron-down'}
+                    style={styles.categoryButton}
+                    labelStyle={appTypography.bodyLarge}
+                  >
+                    {category.title}
+                  </Button>
+
+                  {expandedCategories.includes(category.title) && (
+                    <View style={styles.heirsGrid}>
+                      {filteredHeirs.map(heir => (
+                        <HeirInput
+                          key={heir.key}
+                          heirKey={heir.key}
+                          label={heir.label}
+                          description={heir.description}
+                          max={heir.max}
+                          value={heirs[heir.key] || 0}
+                          onChange={value => updateHeir(heir.key, value)}
+                        />
+                      ))}
+                    </View>
+                  )}
+                  <Divider style={styles.divider} />
+                </View>
+              );
+            })}
           </Card.Content>
         </Card>
 
@@ -469,6 +511,22 @@ const styles = StyleSheet.create({
   },
   madhabInfoDesc: {
     color: '#64748b'
+  },
+  genderSelector: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'center',
+    marginVertical: 8
+  },
+  genderButton: {
+    flex: 1,
+    borderRadius: 8
+  },
+  genderSelected: {
+    backgroundColor: '#3b82f6'
+  },
+  genderSelectedFemale: {
+    backgroundColor: '#ec4899'
   },
   input: {
     marginVertical: 4,

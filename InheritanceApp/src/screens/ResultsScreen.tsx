@@ -301,26 +301,44 @@ const ResultsScreen: React.FC = () => {
               <DataTable.Title numeric>المبلغ</DataTable.Title>
             </DataTable.Header>
 
-            {shares?.map((share: HeirShare) => (
-              <DataTable.Row key={share.key}>
-                <DataTable.Cell>
-                  <View>
-                    <Text style={styles.heirName}>{share.name}</Text>
-                    <Text style={styles.heirType}>{share.type}</Text>
-                  </View>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>{share.count}</DataTable.Cell>
-                <DataTable.Cell numeric>{share.fraction.toDisplay()}</DataTable.Cell>
-                <DataTable.Cell numeric>
-                  <Text style={styles.amount}>{share.amount.toLocaleString('en-US')}</Text>
-                  {share.count > 1 && (
-                    <Text style={styles.perPerson}>
-                      /{share.amountPerPerson.toLocaleString('en-US')}
-                    </Text>
-                  )}
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
+            {shares?.flatMap((share: HeirShare) => {
+              const rows = [
+                <DataTable.Row key={share.key}>
+                  <DataTable.Cell>
+                    <View>
+                      <Text style={styles.heirName}>{share.name}</Text>
+                      <Text style={styles.heirType}>{share.type}</Text>
+                    </View>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>{share.count}</DataTable.Cell>
+                  <DataTable.Cell numeric>{share.fraction.toDisplay()}</DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    <Text style={styles.amount}>{share.amount.toLocaleString('en-US')}</Text>
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ];
+              if (share.count > 1) {
+                rows.push(
+                  <DataTable.Row key={share.key + '_per'} style={styles.perPersonRow}>
+                    <DataTable.Cell>
+                      <Text style={styles.perPersonLabel}>لكل فرد</Text>
+                    </DataTable.Cell>
+                    <DataTable.Cell numeric>{''}</DataTable.Cell>
+                    <DataTable.Cell numeric>
+                      <Text style={styles.perPersonFraction}>
+                        {share.fraction.divide(share.count).toDisplay()}
+                      </Text>
+                    </DataTable.Cell>
+                    <DataTable.Cell numeric>
+                      <Text style={styles.perPersonAmount}>
+                        {share.amountPerPerson.toLocaleString('en-US')}
+                      </Text>
+                    </DataTable.Cell>
+                  </DataTable.Row>
+                );
+              }
+              return rows;
+            })}
           </DataTable>
         </Card.Content>
       </Card>
@@ -497,6 +515,22 @@ const styles = StyleSheet.create({
   perPerson: {
     fontSize: 10,
     color: '#64748b'
+  },
+  perPersonRow: {
+    backgroundColor: '#f8fafc'
+  },
+  perPersonLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    fontStyle: 'italic'
+  },
+  perPersonFraction: {
+    fontSize: 12,
+    color: '#64748b'
+  },
+  perPersonAmount: {
+    fontSize: 12,
+    color: '#3b82f6'
   },
   step: {
     flexDirection: 'row',

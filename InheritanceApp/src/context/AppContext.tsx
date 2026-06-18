@@ -4,6 +4,7 @@ import { typography, appTypography } from '../constants/theme';
 
 export type MadhabType = 'shafii' | 'hanafi' | 'maliki' | 'hanbali';
 export type LanguageType = 'ar' | 'en';
+export type GenderType = 'male' | 'female';
 
 interface AppContextType {
   currentMadhab: MadhabType;
@@ -29,6 +30,8 @@ interface AppContextType {
   auditLog: any[];
   addAuditLog: (action: string, type: string, message: string) => void;
   clearAuditLog: () => void;
+  deceasedGender: GenderType;
+  setDeceasedGender: (gender: GenderType) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -38,6 +41,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentMadhab, setCurrentMadhab] = useState<MadhabType>('shafii');
   const [language, setLanguage] = useState<LanguageType>('ar');
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
+  const [deceasedGender, setDeceasedGender] = useState<GenderType>('male');
   const prevColorScheme = useRef(colorScheme);
 
   useEffect(() => {
@@ -109,7 +113,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setLastResult,
         auditLog,
         addAuditLog,
-        clearAuditLog
+        clearAuditLog,
+        deceasedGender,
+        setDeceasedGender
       }}>
       {children}
     </AppContext.Provider>

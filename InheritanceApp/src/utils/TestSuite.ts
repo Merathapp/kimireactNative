@@ -68,8 +68,8 @@ export class TestSuite {
           heirs: { husband: 1, son: 1, daughter: 1 },
           expected: { 
             husband: 1/4, 
-            son: 7/12,
-            daughter: 7/24
+            son: 1/2,
+            daughter: 1/4
           }
         },
         {
@@ -156,6 +156,11 @@ export class TestSuite {
           heirs: { daughter: 2 },
           expected: { daughter: 1 },
           radd: true
+        },
+        {
+          name: 'أم + أب فقط',
+          heirs: { mother: 1, father: 1 },
+          expected: { mother: 1/3, father: 2/3 }
         }
       ],
 
@@ -254,6 +259,22 @@ export class TestSuite {
         }
       ],
 
+      // ===== Blood Relatives =====
+      bloodRelatives: [
+        {
+          name: 'خال فقط (الشافعي)',
+          heirs: { maternal_uncle: 1 },
+          madhab: 'shafii',
+          expected: { maternal_uncle: 1 }
+        },
+        {
+          name: 'خال فقط (المالكي - لبيت المال)',
+          heirs: { maternal_uncle: 1 },
+          madhab: 'maliki',
+          expected: { treasury: 1 }
+        }
+      ],
+
       // ===== Complex Cases =====
       complex: [
         {
@@ -271,10 +292,10 @@ export class TestSuite {
           name: 'زوج + بنت + بنت ابن + أم',
           heirs: { husband: 1, daughter: 1, granddaughter: 1, mother: 1 },
           expected: { 
-            husband: 3/12, 
-            daughter: 6/12, 
-            granddaughter: 2/12, 
-            mother: 1/12 
+            husband: 3/13, 
+            daughter: 6/13, 
+            granddaughter: 2/13, 
+            mother: 2/13 
           },
           awl: true
         }
