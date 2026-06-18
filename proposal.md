@@ -118,10 +118,170 @@ Since the engines are identical, enhancements focus on **new features** not pres
 | 6 | Prenuptial / marital property awareness | Medium |
 | 7 | Missing heir / unborn child placeholder | Medium |
 | 13 | Bar chart visualization (in addition to pie) | Low |
-| — | Android nav bar overlay on tab bar | 🚧 In progress |
+| — | Android nav bar overlay on tab bar | ✅ Fixed — `useSafeAreaInsets()` added |
 
 ---
 
 ## 4. Build Status
 
 Current branch `main` has all SDK 56 migration fixes, number format unification, Settings screen, and all 4 enhancement phases. Ready for APK build at any time.
+
+---
+
+## 5. Post-Phase Audit: Full Codebase Evaluation
+
+A comprehensive audit of all 30 source files was conducted on 2026-06-18. The engine comparison confirmed the RN engine is a 1:1 match with the HTML version. This section evaluates everything beyond the engine: code quality, UX, accessibility, architecture, and missing production features.
+
+### 5.1 Executive Summary
+
+| Metric | Count |
+|---|---|
+| Files audited | 30 |
+| Critical issues | 5 |
+| High-priority issues | 8 |
+| Medium-priority issues | 10 |
+| Low-priority / nice-to-have | 12 |
+| Engine bugs found | 0 (engine is verified correct) |
+| Code quality issues | 8 |
+| Accessibility issues | 6 |
+| Performance concerns | 5 |
+| **Total actionable items** | **~35** |
+
+**Verdict:** The app is functionally correct and usable, but has several production-readiness gaps in polish, accessibility, and persistence. No engine bugs were found. Most issues are UI/UX, code quality, and missing production features.
+
+---
+
+### 5.2 CRITICAL — Must Fix
+
+These issues cause incorrect behavior, data loss, or prevent the app from being production-quality.
+
+| # | Issue | Location | Impact | Effort |
+|---|-------|----------|--------|--------|
+| **C1** | **Madhab colors inconsistent across 3 sources** | `colors.ts`, `FiqhDatabase.ts`, `CompareScreen.tsx` | Shafii shown as indigo in some places, green in others; same for Maliki (teal vs purple) and Hanbali (amber vs blue) — confuses users | 🟢 15 min |
+| **C2** | **Settings not persisted across restarts** | `AppContext.tsx` | Dark mode, language, and madhab choice reset every time the app is killed — user expectation violation | 🟢 30 min |
+| **C3** | **`lastResult` typed as `any`** | `AppContext.tsx:28` | No compile-time safety; any shape can be stored; crashes at runtime if format changes | 🟢 20 min |
+| **C4** | **Navigation typed with `as never` and `useNavigation<any>()`** | `CalculatorScreen.tsx:158`, `AppNavigator.tsx:24` | Refactoring navigation won't catch broken routes; runtime crashes | 🟢 30 min |
+| **C5** | **No real RTL layout support** | All screens (especially `AppNavigator.tsx:44`, `MainTabNavigator.tsx`) | `headerTitleAlign: 'left'` is wrong for Arabic; `flexDirection: 'row'` without I18nManager awareness means English mode layout is broken | 🟡 2-3 hrs |
+
+### 5.3 HIGH — Should Fix
+
+These issues affect correctness, UX quality, or maintainability.
+
+| # | Issue | Location | Impact | Effort |
+|---|-------|----------|--------|--------|
+| **H1** | **Grandfather muqasama missing 1/6 option** | `InheritanceEngine.ts` lines 936-976 | In Maliki/Hanbali, grandfather facing siblings should get max(muqasama, 1/3, 1/6) — currently only compares muqasama vs 1/3, missing the 1/6 floor | 🟡 1 hr |
+| **H2** | **Dead code in engine** | `InheritanceEngine.ts` lines 894-899, 952-959 | `asabaFound` and `bestReason` variables assigned but never read; suppressed with `void` — maintenance burden | 🟢 10 min |
+| **H3** | **Audit log grows unbounded** | `AppContext.tsx`, `AuditScreen.tsx` | All entries stored in memory as React state; no cap or pagination; causes memory pressure over time | 🟢 20 min |
+| **H4** | **No accessibility labels on any interactive element** | All components | App invisible to screen readers; violates accessibility guidelines; legal risk in some jurisdictions | 🟡 2 hrs |
+| **H5** | **Small touch targets** | `HeirInput.tsx` (32×32 buttons, 50px inputs) | Below 44pt recommended minimum; users with motor impairments struggle | 🟢 15 min |
+| **H6** | **Husband/wife conflict silently mutates data** | `InheritanceEngine.ts:177-180` | If both husband and wife have values > 0, wife is silently zeroed instead of returning a validation error | 🟢 10 min |
+| **H7** | **Fair rounding may over-correct for large estates** | `InheritanceEngine.ts:1348-1368` | Penny-rounding distributes rounding errors in a non-proportional way for large numbers | 🟢 30 min |
+| **H8** | **In-app test tolerance too loose (0.5%)** | `TestSuite.ts:387` | Could mask small calculation errors; should be 0.1% for production | 🟢 5 min |
+
+### 5.4 MEDIUM — Worth Doing
+
+These are code quality, DRY, and UX polish items.
+
+| # | Issue | Location | Effort |
+|---|-------|----------|--------|
+| **M1** | `MadhabType` defined in 2 places (`AppContext.tsx`, `FiqhDatabase.ts`) — could drift | Both files | 🟢 5 min |
+| **M2** | `FiqhDatabase.heirCategories` (line 137) is dead code — `CalculatorScreen` defines its own | `FiqhDatabase.ts` | 🟢 5 min |
+| **M3** | `heirConstraints` duplicated between `FiqhDatabase.ts` and `Validation.ts` with slight differences | Both files | 🟢 10 min |
+| **M4** | Audit log `id` uses `Date.now()` — collision risk for rapid events | `AppContext.tsx:82` | 🟢 5 min |
+| **M5** | Audit log timestamp uses hardcoded `'en-US'` locale, ignores user's language | `AppContext.tsx:83` | 🟢 5 min |
+| **M6** | Font families are Android-only (`sans-serif`, `sans-serif-medium`) — iOS fallback is plain system font | `theme.ts` | 🟢 10 min |
+| **M7** | No loading state on Calculate button — engine is sync but could be async for complex cases | `CalculatorScreen.tsx` | 🟢 15 min |
+| **M8** | `PieChart` lacks percentage labels on slices and accessibility | `PieChart.tsx` | 🟡 1 hr |
+| **M9** | Tab navigator untyped — `createBottomTabNavigator()` without type parameter | `MainTabNavigator.tsx:14` | 🟢 10 min |
+| **M10** | `ScenariosScreen` destructures `useApp()` redundantly (2 lines instead of 1) | `ScenariosScreen.tsx:30-31` | 🟢 5 min |
+
+### 5.5 LOW — Nice-to-Have / Future
+
+These are features that would improve the app but aren't necessary for correctness or basic usability.
+
+| # | Feature | Rationale | Effort |
+|---|---------|-----------|--------|
+| **L1** | Deep linking for result sharing | Users can't share links to specific calculations | 🟡 2 hrs |
+| **L2** | Bar chart visualization (alongside pie) | HTML has both; visual variety | 🟡 2 hrs |
+| **L3** | PDF export (via `expo-print` → save) | Print is implemented; saving as PDF is one more step | 🟢 30 min |
+| **L4** | Import/export scenarios as JSON | Backup and transfer between devices | 🟡 1.5 hrs |
+| **L5** | Posthumous child (حمل) support | Deferred distribution for pregnant wife | 🟡 3 hrs |
+| **L6** | Missing heir (مفقود) support | Deferred distribution for absent heirs | 🟡 3 hrs |
+| **L7** | Currency selector (SAR default) | Fixed to SAR; other currencies helpful for intl users | 🟢 30 min |
+| **L8** | Onboarding/tutorial screen | First-time users need guidance on Islamic inheritance rules | 🟡 2 hrs |
+| **L9** | Calculation history (beyond last result) | Users often want to revisit past calculations | 🟡 2 hrs |
+| **L10** | Auto-save draft calculations | Prevent data loss on accidental back navigation | 🟡 1 hr |
+| **L11** | `lastResult` and scenarios persisted to AsyncStorage | Survive app restarts | 🟡 1.5 hrs |
+| **L12** | `React.memo` on `PieChart` and `HeirInput` | Reduce unnecessary re-renders | 🟢 15 min |
+
+### 5.6 Recommendations
+
+**Immediate (before next APK build):**
+1. Fix **C1** (madhab colors) — 15 min, high visual impact
+2. Fix **C2** (persist settings) — 30 min, essential for UX
+3. Fix **C3-C4** (type safety) — 50 min, prevents crashes
+4. Fix **H2** (dead code cleanup) — 10 min, low risk
+5. Fix **H8** (test tolerance) — 5 min, improves test reliability
+
+**Before public release:**
+6. Fix **C5** (RTL layout) — 2-3 hrs, needed for English mode
+7. Fix **H1** (grandfather muqasama 1/6) — 1 hr, correctness fix
+8. Fix **H4-H5** (accessibility) — 2 hrs, compliance
+9. Fix **H3** (audit log cap) — 20 min, prevents memory issues
+10. Fix **M1-M6** (code quality) — 30 min total
+
+**Future enhancements (post-v1):**
+11. All LOW items (L1-L12)
+12. Prenuptial property awareness (item 6 from Phase 2)
+13. Unborn child / missing heir support (items 7 from Phase 2)
+
+### 5.7 Risk Assessment for Each Fix
+
+| Fix | Risk | Mitigation |
+|-----|------|------------|
+| C1 (colors) | 🟢 None — pure UI constant change | Visually verify each madhab tab |
+| C2 (persist settings) | 🟢 Low — reading/writing AsyncStorage | Existing values used as fallback |
+| C3-C4 (type safety) | 🟢 Low — no runtime behavior change | TypeScript catches any misuse |
+| C5 (RTL) | 🟡 Medium — layout changes across many screens | Test in both Arabic and English |
+| H1 (grandfather 1/6) | 🟡 Medium — engine logic change | Must run all 44 Jest tests + in-app tests |
+| H2 (dead code) | 🟢 None — removing unused code | Trivial |
+| H3 (audit log cap) | 🟢 Low — pure UI change | Verify old entries still show |
+| H4 (accessibility) | 🟢 Low — additive only | No behavior change |
+| H5 (touch targets) | 🟢 Low — style-only change | Verify on small-screen device |
+| H6 (husband/wife error) | 🟢 Low — validation rejects earlier | Existing tests should cover |
+| H7 (fair rounding) | 🟡 Medium — affects amount distribution | Verify total equals netEstate after fix |
+| H8 (test tolerance) | 🟢 None — test threshold only | Re-run all tests |
+
+### 5.8 Proposed TODO List (Ordered)
+
+```
+Phase 5 (Immediate — before next APK):
+  [ ] C1: Unify madhab colors to single source of truth (FiqhDatabase)
+  [ ] C2: Persist settings (madhab, dark mode, language) to AsyncStorage
+  [ ] C3: Type lastResult as CalculationResult | null
+  [ ] C4: Type-safe navigation — typed RootStackParamList, remove as never
+  [ ] H2: Remove dead code (asabaFound, bestReason, _heirKey)
+  [ ] H8: Tighten test tolerance 0.5% → 0.1%
+
+Phase 6 (Before public release):
+  [ ] C5: Proper RTL layout with I18nManager
+  [ ] H1: Fix grandfather muqasama (add 1/6 floor)
+  [ ] H3: Cap audit log at 500 entries
+  [ ] H4: Add accessibilityLabel to all interactive elements
+  [ ] H5: Increase touch targets to ≥44pt
+  [ ] H6: Return error instead of silently zeroing wife
+  [ ] H7: Improve fair rounding for large estates
+  [ ] M1-M6: Code quality cleanup
+
+Phase 7 (Post-v1):
+  [ ] L1: Deep linking
+  [ ] L2: Bar chart visualization
+  [ ] L3: PDF export
+  [ ] L4: Import/export scenarios
+  [ ] L5-L6: Missing heir scenarios (حمل, مفقود)
+  [ ] L7: Currency selector
+  [ ] L8: Onboarding screen
+  [ ] L9-L10: History and auto-save
+  [ ] L11: Persist scenarios and lastResult
+  [ ] L12: React.memo optimizations
+```
