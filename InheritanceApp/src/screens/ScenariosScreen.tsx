@@ -17,16 +17,20 @@ import {
   Chip
 } from 'react-native-paper';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useApp } from '../context/AppContext';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useApp, MadhabType } from '../context/AppContext';
 import {
   loadAllScenarios,
   deleteScenario,
   saveScenario,
   Scenario
 } from '../utils/ScenarioStorage';
+import { RootStackParamList } from '../navigation/AppNavigator';
+
+type NavProp = StackNavigationProp<RootStackParamList>;
 
 const ScenariosScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavProp>();
   const appContext = useApp();
   const { setCurrentMadhab, updateEstateField, updateHeir, resetHeirs, setDeceasedGender, currentMadhab, estate, heirs, deceasedGender } = appContext;
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
@@ -50,11 +54,11 @@ const ScenariosScreen: React.FC = () => {
           text: 'تحميل',
           onPress: () => {
             resetHeirs();
-            setCurrentMadhab(s.madhab as any);
+            setCurrentMadhab(s.madhab as MadhabType);
             setDeceasedGender(s.deceasedGender);
             Object.entries(s.estate).forEach(([k, v]) => updateEstateField(k, v));
             Object.entries(s.heirs).forEach(([k, v]) => updateHeir(k, v));
-            navigation.navigate('Calculator' as never);
+            navigation.navigate('Calculator');
           }
         }
       ]

@@ -17,11 +17,15 @@ import {
   IconButton
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { useApp } from '../context/AppContext';
 import PieChart from '../components/PieChart';
 import { appTypography } from '../constants/theme';
 import { HeirShare } from '../utils/HeirShare';
 import { BlockedHeir, SpecialCase, CalculationStep } from '../utils/InheritanceEngine';
+import { RootStackParamList } from '../navigation/AppNavigator';
+
+type NavProp = StackNavigationProp<RootStackParamList>;
 import { getHeirVerse } from '../constants/QuranicVerses';
 import * as Clipboard from 'expo-clipboard';
 import { writeAsStringAsync, cacheDirectory } from 'expo-file-system/legacy';
@@ -36,7 +40,7 @@ const colors = [
 ];
 
 const ResultsScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavProp>();
   const { lastResult, addAuditLog } = useApp();
 
   if (!lastResult || !lastResult.success) {
@@ -50,7 +54,7 @@ const ResultsScreen: React.FC = () => {
         </Text>
         <Button
           mode="contained"
-          onPress={() => navigation.navigate('Calculator' as never)}
+          onPress={() => navigation.navigate('Calculator')}
           style={styles.emptyButton}
         >
           الذهاب للحاسبة

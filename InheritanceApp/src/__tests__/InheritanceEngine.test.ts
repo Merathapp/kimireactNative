@@ -14,7 +14,7 @@ function getShare(result: any, key: string): number {
 
 function expectShare(result: any, key: string, expected: number) {
   const actual = getShare(result, key);
-  expect(Math.abs(actual - expected)).toBeLessThan(0.005);
+  expect(Math.abs(actual - expected)).toBeLessThan(0.001);
 }
 
 describe('InheritanceEngine', () => {
@@ -155,7 +155,7 @@ describe('InheritanceEngine', () => {
       expectShare(r, 'husband', 1/2);
       expectShare(r, 'mother', 1/6);
       const siblingShare = getShare(r, 'shared_siblings');
-      expect(Math.abs(siblingShare - 1/3)).toBeLessThan(0.005);
+      expect(Math.abs(siblingShare - 1/3)).toBeLessThan(0.001);
     });
   });
 

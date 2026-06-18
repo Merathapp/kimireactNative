@@ -893,15 +893,10 @@ export class InheritanceEngine {
       this.addStep('العصبات', 'لا باقي للعصبات (المسألة عادلة أو عائلة)');
       return asabaShares;
     }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-let asabaFound = false; // Kept for reference
-    void asabaFound;
-    const asabaList: { key: string; name: string; weight: number; addToExisting?: boolean }[] = [];
+const asabaList: { key: string; name: string; weight: number; addToExisting?: boolean }[] = [];
 
     // ===== 1. Son (asaba by self) =====
     if (h.son > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.son; i++) {
         asabaList.push({ key: 'son', name: 'الابن', weight: 2 });
       }
@@ -912,7 +907,6 @@ let asabaFound = false; // Kept for reference
 
     // ===== 2. Grandson (asaba by self) =====
     else if (h.grandson > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.grandson; i++) {
         asabaList.push({ key: 'grandson', name: 'ابن الابن', weight: 2 });
       }
@@ -923,7 +917,6 @@ let asabaFound = false; // Kept for reference
 
     // ===== 3. Father (asaba by self) =====
     else if (h.father > 0 && !this.hasMaleDescendants()) {
-      asabaFound = true;
       const fatherShare = fixedShares.find(s => s.key === 'father');
       if (fatherShare) {
         asabaList.push({ key: 'father', name: 'الأب', weight: 1, addToExisting: true });
@@ -937,7 +930,6 @@ let asabaFound = false; // Kept for reference
       const siblingsCount = this.getFullAndPaternalSiblingsCount();
 
       if (siblingsCount > 0 && rules.grandfatherWithSiblings === 'shares') {
-        asabaFound = true;
         this.state.specialCases.push({
           type: 'grandfather_with_siblings',
           name: 'الجد مع الإخوة',
@@ -948,15 +940,11 @@ let asabaFound = false; // Kept for reference
                           (h.paternal_brother || 0) * 2 + (h.paternal_sister || 0);
         const grandfatherByMuqasama = new Fraction(2, totalHeads);
         const grandfatherByThird = Fraction.THIRD;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
         let bestOption = grandfatherByMuqasama;
-let bestReason = 'المقاسمة'; // Kept for reference
-        void bestReason;
 
         if (grandfatherByThird.greaterThan(bestOption)) {
           bestOption = grandfatherByThird;
-          bestReason = 'ثلث جميع المال';
         }
 
         asabaList.push({ key: 'grandfather', name: 'الجد', weight: 2 });
@@ -975,7 +963,6 @@ let bestReason = 'المقاسمة'; // Kept for reference
         }
 
       } else if (!this.hasMaleDescendants()) {
-        asabaFound = true;
         const grandfatherShare = fixedShares.find(s => s.key === 'grandfather');
         if (grandfatherShare) {
           asabaList.push({ key: 'grandfather', name: 'الجد', weight: 1, addToExisting: true });
@@ -987,7 +974,6 @@ let bestReason = 'المقاسمة'; // Kept for reference
 
     // ===== 5. Full Brother (asaba by self) =====
     else if (h.full_brother > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.full_brother; i++) {
         asabaList.push({ key: 'full_brother', name: 'الأخ الشقيق', weight: 2 });
       }
@@ -998,7 +984,6 @@ let bestReason = 'المقاسمة'; // Kept for reference
 
     // ===== 6. Full Sister asaba with ghayr =====
     else if (h.full_sister > 0 && this.hasFemaleDescendants()) {
-      asabaFound = true;
       this.state.specialCases.push({
         type: 'sister_with_daughters',
         name: 'عصبة مع الغير',
@@ -1027,7 +1012,6 @@ let bestReason = 'المقاسمة'; // Kept for reference
 
     // ===== 7. Paternal Brother (asaba by self) =====
     else if (h.paternal_brother > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.paternal_brother; i++) {
         asabaList.push({ key: 'paternal_brother', name: 'الأخ لأب', weight: 2 });
       }
@@ -1038,7 +1022,6 @@ let bestReason = 'المقاسمة'; // Kept for reference
 
     // ===== 8. Paternal Sister asaba with ghayr =====
     else if (h.paternal_sister > 0 && this.hasFemaleDescendants() && !h.full_sister) {
-      asabaFound = true;
       this.state.specialCases.push({
         type: 'paternal_sister_with_daughters',
         name: 'عصبة مع الغير',
@@ -1057,37 +1040,31 @@ let bestReason = 'المقاسمة'; // Kept for reference
 
     // ===== 9. Distant asaba =====
     else if (h.full_nephew > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.full_nephew; i++) {
         asabaList.push({ key: 'full_nephew', name: 'ابن الأخ الشقيق', weight: 1 });
       }
     }
     else if (h.paternal_nephew > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.paternal_nephew; i++) {
         asabaList.push({ key: 'paternal_nephew', name: 'ابن الأخ لأب', weight: 1 });
       }
     }
     else if (h.full_uncle > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.full_uncle; i++) {
         asabaList.push({ key: 'full_uncle', name: 'العم الشقيق', weight: 1 });
       }
     }
     else if (h.paternal_uncle > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.paternal_uncle; i++) {
         asabaList.push({ key: 'paternal_uncle', name: 'العم لأب', weight: 1 });
       }
     }
     else if (h.full_cousin > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.full_cousin; i++) {
         asabaList.push({ key: 'full_cousin', name: 'ابن العم الشقيق', weight: 1 });
       }
     }
     else if (h.paternal_cousin > 0) {
-      asabaFound = true;
       for (let i = 0; i < h.paternal_cousin; i++) {
         asabaList.push({ key: 'paternal_cousin', name: 'ابن العم لأب', weight: 1 });
       }
@@ -1348,21 +1325,21 @@ let bestReason = 'المقاسمة'; // Kept for reference
   fairRounding(shares: HeirShare[], netEstate: number): void {
     shares.forEach(s => s.calculateAmount(netEstate));
 
-    let total = shares.reduce((sum, s) => sum + s.amount, 0);
+    const estateCents = Math.round(netEstate * 100);
+    let totalCents = Math.round(shares.reduce((sum, s) => sum + s.amount, 0) * 100);
+    const diffCents = estateCents - totalCents;
 
-    const diff = netEstate - total;
-    if (Math.abs(diff) >= 0.01 && shares.length > 0) {
+    if (Math.abs(diffCents) >= 1 && shares.length > 0) {
       const sorted = [...shares].sort((a, b) => b.amount - a.amount);
-      const cents = Math.abs(Math.round(diff * 100));
-      const sign = diff > 0 ? 1 : -1;
+      const sign = diffCents > 0 ? 1 : -1;
 
-      for (let i = 0; i < cents && i < sorted.length * 10; i++) {
+      for (let i = 0; i < Math.abs(diffCents) && i < sorted.length * 10; i++) {
         const idx = i % sorted.length;
-        sorted[idx].amount = Math.round((sorted[idx].amount + sign * 0.01) * 100) / 100;
+        sorted[idx].amount = (Math.round(sorted[idx].amount * 100) + sign) / 100;
       }
 
       shares.forEach(s => {
-        s.amountPerPerson = s.amount / s.count;
+        s.amountPerPerson = s.count > 0 ? Math.round((s.amount / s.count) * 100) / 100 : 0;
       });
     }
   }

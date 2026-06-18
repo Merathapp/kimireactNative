@@ -1,4 +1,4 @@
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
 import { useApp } from '../context/AppContext';
 import MainTabNavigator from './MainTabNavigator';
 import ResultsScreen from '../screens/ResultsScreen';
@@ -12,16 +12,19 @@ import { useNavigation } from '@react-navigation/native';
 export type RootStackParamList = {
   MainTabs: undefined;
   Results: undefined;
+  Calculator: undefined;
   Settings: undefined;
   Scenarios: undefined;
 };
+
+type AppNavProp = StackNavigationProp<RootStackParamList>;
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   const { language } = useApp();
   const isRTL = language === 'ar';
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<AppNavProp>();
 
   return (
     <Stack.Navigator

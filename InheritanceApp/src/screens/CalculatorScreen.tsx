@@ -18,10 +18,14 @@ import {
   Surface
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { useApp } from '../context/AppContext';
 import { InheritanceEngine } from '../utils/InheritanceEngine';
 import { validateAll } from '../utils/Validation';
 import { getMadhabConfig } from '../constants/FiqhDatabase';
+import { RootStackParamList } from '../navigation/AppNavigator';
+
+type NavProp = StackNavigationProp<RootStackParamList>;
 import { HeirInput } from '../components/HeirInput';
 import { MadhabDropdown } from '../components/MadhabDropdown';
 import { QuickPreview } from '../components/QuickPreview';
@@ -107,7 +111,7 @@ const quickTests: { key: string; label: string; heirs: Record<string, number> }[
 ];
 
 const CalculatorScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavProp>();
   const {
     currentMadhab,
     setCurrentMadhab,
@@ -155,7 +159,7 @@ const CalculatorScreen: React.FC = () => {
         addAuditLog('حساب الميراث', 'success',
           `تم الحساب بنجاح - التركة: ${estate.total.toLocaleString('en-US')} - المذهب: ${result.madhhabName}`
         );
-        navigation.navigate('Results' as never);
+        navigation.navigate('Results');
       } else {
         Alert.alert('خطأ في الحساب', result.errors?.join('\n') || 'حدث خطأ غير معروف');
         addAuditLog('حساب الميراث', 'error', result.errors?.join(', ') || 'خطأ غير معروف');

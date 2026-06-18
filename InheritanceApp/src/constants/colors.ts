@@ -92,14 +92,7 @@ export const colors = {
   },
 };
 
-// Madhab-specific colors (using the palette)
-export const madhabColors = {
-  shafii: colors.primary[500],   // Indigo
-  hanafi: colors.error,          // Red
-  maliki: colors.secondary[500], // Teal
-  hanbali: colors.warning,       // Amber
-};
-
+// Madhab colors sourced from FIQH_DATABASE.madhabs (single source of truth)
 // Export individual color groups
 export const bg = colors.background;
 export const text = colors.text;

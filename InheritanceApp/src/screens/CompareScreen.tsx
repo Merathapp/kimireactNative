@@ -15,12 +15,8 @@ import { FIQH_DATABASE, MadhabType } from '../constants/FiqhDatabase';
 
 const madhabs: MadhabType[] = ['shafii', 'hanafi', 'maliki', 'hanbali'];
 
-const madhabColors: Record<MadhabType, string> = {
-  shafii: '#10b981',
-  hanafi: '#ef4444',
-  maliki: '#8b5cf6',
-  hanbali: '#3b82f6'
-};
+const getMadhabColor = (madhab: MadhabType): string =>
+  FIQH_DATABASE.madhabs[madhab].color;
 
 const CompareScreen: React.FC = () => {
   const { estate, heirs, addAuditLog } = useApp();
@@ -119,9 +115,9 @@ const CompareScreen: React.FC = () => {
                   {madhabs.map(madhab => (
                     <DataTable.Title
                       key={madhab}
-                      style={[styles.madhabColumn, { backgroundColor: `${madhabColors[madhab]}15` }]}
+                      style={[styles.madhabColumn, { backgroundColor: `${getMadhabColor(madhab)}15` }]}
                     >
-                      <Text style={{ color: madhabColors[madhab], fontWeight: 'bold' }}>
+                      <Text style={{ color: getMadhabColor(madhab), fontWeight: 'bold' }}>
                         {FIQH_DATABASE.madhabs[madhab].icon} {FIQH_DATABASE.madhabs[madhab].name}
                       </Text>
                     </DataTable.Title>
@@ -142,7 +138,7 @@ const CompareScreen: React.FC = () => {
                       return (
                         <DataTable.Cell
                           key={madhab}
-                          style={[styles.madhabColumn, { backgroundColor: `${madhabColors[madhab]}08` }]}
+                          style={[styles.madhabColumn, { backgroundColor: `${getMadhabColor(madhab)}08` }]}
                         >
                           {share ? (
                             <View>
@@ -169,9 +165,9 @@ const CompareScreen: React.FC = () => {
                 return (
                   <Surface
                     key={madhab}
-                    style={[styles.summaryItem, { borderColor: madhabColors[madhab] }]}
+                    style={[styles.summaryItem, { borderColor: getMadhabColor(madhab) }]}
                   >
-                    <Text style={[styles.summaryTitle, { color: madhabColors[madhab] }]}>
+                    <Text style={[styles.summaryTitle, { color: getMadhabColor(madhab) }]}>
                       {FIQH_DATABASE.madhabs[madhab].name}
                     </Text>
                     {result.awlApplied && (
