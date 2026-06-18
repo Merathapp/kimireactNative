@@ -938,28 +938,50 @@ const asabaList: { key: string; name: string; weight: number; addToExisting?: bo
 
         const totalHeads = 2 + (h.full_brother || 0) * 2 + (h.full_sister || 0) +
                           (h.paternal_brother || 0) * 2 + (h.paternal_sister || 0);
-        const grandfatherByMuqasama = new Fraction(2, totalHeads);
-        const grandfatherByThird = Fraction.THIRD;
+        const muqasamaOfTotal = new Fraction(2, totalHeads).multiply(remainder);
 
-        let bestOption = grandfatherByMuqasama;
-
-        if (grandfatherByThird.greaterThan(bestOption)) {
-          bestOption = grandfatherByThird;
+        // Best of: muqasama share of total, 1/3 of total, or 1/6 of total (floor)
+        const oneThird = new Fraction(1, 3);
+        const oneSixth = new Fraction(1, 6);
+        let grandfatherTotalShare = muqasamaOfTotal;
+        if (oneThird.greaterThan(grandfatherTotalShare)) {
+          grandfatherTotalShare = oneThird;
+        }
+        if (oneSixth.greaterThan(grandfatherTotalShare)) {
+          grandfatherTotalShare = oneSixth;
         }
 
-        asabaList.push({ key: 'grandfather', name: 'الجد', weight: 2 });
+        asabaShares.push(new HeirShare({
+          key: 'grandfather',
+          name: 'الجد',
+          type: 'عصبة',
+          fraction: grandfatherTotalShare,
+          count: 1,
+          reason: `أفضل حصة للجد من المقاسمة أو ⅓ أو ⅙`
+        }));
 
-        for (let i = 0; i < (h.full_brother || 0); i++) {
-          asabaList.push({ key: 'full_brother', name: 'الأخ الشقيق', weight: 2 });
-        }
-        for (let i = 0; i < (h.full_sister || 0); i++) {
-          asabaList.push({ key: 'full_sister', name: 'الأخت الشقيقة', weight: 1 });
-        }
-        for (let i = 0; i < (h.paternal_brother || 0); i++) {
-          asabaList.push({ key: 'paternal_brother', name: 'الأخ لأب', weight: 2 });
-        }
-        for (let i = 0; i < (h.paternal_sister || 0); i++) {
-          asabaList.push({ key: 'paternal_sister', name: 'الأخت لأب', weight: 1 });
+        // Distribute remaining to siblings proportionally
+        const siblingsRemainder = remainder.subtract(grandfatherTotalShare);
+        if (siblingsRemainder.isPositive()) {
+          const fullBrotherWeight = (h.full_brother || 0) * 2;
+          const fullSisterWeight = (h.full_sister || 0);
+          const paternalBrotherWeight = (h.paternal_brother || 0) * 2;
+          const paternalSisterWeight = (h.paternal_sister || 0) * 1;
+          const totalSiblingWeight = fullBrotherWeight + fullSisterWeight +
+                                     paternalBrotherWeight + paternalSisterWeight;
+
+          if (totalSiblingWeight > 0) {
+            const addSiblingShare = (key: string, name: string, weight: number, count: number) => {
+              if (count > 0) {
+                const frac = siblingsRemainder.multiply(new Fraction(weight, totalSiblingWeight));
+                asabaShares.push(new HeirShare({ key, name, type: 'عصبة', fraction: frac, count, reason: `الباقي بعد حصة الجد` }));
+              }
+            };
+            if (h.full_brother) addSiblingShare('full_brother', 'الأخ الشقيق', fullBrotherWeight, h.full_brother);
+            if (h.full_sister) addSiblingShare('full_sister', 'الأخت الشقيقة', fullSisterWeight, h.full_sister);
+            if (h.paternal_brother) addSiblingShare('paternal_brother', 'الأخ لأب', paternalBrotherWeight, h.paternal_brother);
+            if (h.paternal_sister) addSiblingShare('paternal_sister', 'الأخت لأب', paternalSisterWeight, h.paternal_sister);
+          }
         }
 
       } else if (!this.hasMaleDescendants()) {

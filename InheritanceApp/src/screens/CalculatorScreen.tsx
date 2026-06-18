@@ -273,6 +273,7 @@ const CalculatorScreen: React.FC = () => {
                 icon="gender-male"
                 style={[styles.genderButton, deceasedGender === 'male' && styles.genderSelected]}
                 labelStyle={appTypography.labelLarge}
+                accessibilityLabel="تحديد جنس المتوفى ذكر"
               >
                 ذكر
               </Button>
@@ -282,6 +283,7 @@ const CalculatorScreen: React.FC = () => {
                 icon="gender-female"
                 style={[styles.genderButton, deceasedGender === 'female' && styles.genderSelectedFemale]}
                 labelStyle={appTypography.labelLarge}
+                accessibilityLabel="تحديد جنس المتوفى أنثى"
               >
                 أنثى
               </Button>
@@ -441,6 +443,7 @@ const CalculatorScreen: React.FC = () => {
             icon="calculator"
             style={[styles.button, styles.calculateButton]}
             labelStyle={[appTypography.labelLarge, styles.buttonLabel]}
+            accessibilityLabel="حساب المواريث"
           >
             احسب المواريث
           </Button>
@@ -452,6 +455,7 @@ const CalculatorScreen: React.FC = () => {
               icon="check-circle"
               style={[styles.button, styles.secondaryButton]}
               labelStyle={appTypography.labelLarge}
+              accessibilityLabel="التحقق من البيانات"
             >
               تحقق
             </Button>

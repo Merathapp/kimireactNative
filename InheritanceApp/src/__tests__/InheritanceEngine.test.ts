@@ -187,6 +187,12 @@ describe('InheritanceEngine', () => {
       expectShare(r, 'grandfather', 1/2);
       expectShare(r, 'full_brother', 1/2);
     });
+
+    test('جد + 4 إخوة (المالكي - ثلث)', () => {
+      const r = runEngine('maliki', { grandfather: 1, full_brother: 4 });
+      expectShare(r, 'grandfather', 1/3);
+      expectShare(r, 'full_brother', 2/3);
+    });
   });
 
   describe('Blood Relatives', () => {
