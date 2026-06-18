@@ -609,7 +609,7 @@ export class InheritanceEngine {
     }
 
     // ===== Grandfather =====
-    if (h.grandfather > 0 && h.father === 0) {
+    if (h.grandfather > 0 && !h.father) {
       const siblingsExist = this.getFullAndPaternalSiblingsCount() > 0;
       const rules = this.config.rules;
 
@@ -656,7 +656,7 @@ export class InheritanceEngine {
     }
 
     // ===== Daughters =====
-    if (h.daughter > 0 && h.son === 0) {
+    if (h.daughter > 0 && !h.son) {
       const frac = h.daughter === 1 ? Fraction.HALF : Fraction.TWO_THIRDS;
       shares.push(new HeirShare({
         key: 'daughter',
@@ -670,8 +670,8 @@ export class InheritanceEngine {
     }
 
     // ===== Granddaughters =====
-    if (h.granddaughter > 0 && h.grandson === 0 && h.son === 0) {
-      if (h.daughter === 0) {
+    if (h.granddaughter > 0 && !h.grandson && !h.son) {
+      if (!h.daughter) {
         const frac = h.granddaughter === 1 ? Fraction.HALF : Fraction.TWO_THIRDS;
         shares.push(new HeirShare({
           key: 'granddaughter',
@@ -694,7 +694,7 @@ export class InheritanceEngine {
     }
 
     // ===== Full Sisters =====
-    if (h.full_sister > 0 && h.full_brother === 0) {
+    if (h.full_sister > 0 && !h.full_brother) {
       const isAsabaWithGhayr = this.hasFemaleDescendants();
 
       if (!isAsabaWithGhayr && !hasDesc && !this.hasMaleAscendant()) {
@@ -711,11 +711,11 @@ export class InheritanceEngine {
     }
 
     // ===== Paternal Sisters =====
-    if (h.paternal_sister > 0 && h.paternal_brother === 0 && h.full_brother === 0) {
-      const isAsabaWithGhayr = this.hasFemaleDescendants() && h.full_sister === 0;
+    if (h.paternal_sister > 0 && !h.paternal_brother && !h.full_brother) {
+      const isAsabaWithGhayr = this.hasFemaleDescendants() && !h.full_sister;
 
       if (!isAsabaWithGhayr && !hasDesc && !this.hasMaleAscendant()) {
-        if (h.full_sister === 0) {
+        if (!h.full_sister) {
           const frac = h.paternal_sister === 1 ? Fraction.HALF : Fraction.TWO_THIRDS;
           shares.push(new HeirShare({
             key: 'paternal_sister',
@@ -933,7 +933,7 @@ let asabaFound = false; // Kept for reference
     }
 
     // ===== 4. Grandfather with siblings (sharing in Maliki and Hanbali) =====
-    else if (h.grandfather > 0 && h.father === 0) {
+    else if (h.grandfather > 0 && !h.father) {
       const siblingsCount = this.getFullAndPaternalSiblingsCount();
 
       if (siblingsCount > 0 && rules.grandfatherWithSiblings === 'shares') {
@@ -1037,7 +1037,7 @@ let bestReason = 'المقاسمة'; // Kept for reference
     }
 
     // ===== 8. Paternal Sister asaba with ghayr =====
-    else if (h.paternal_sister > 0 && this.hasFemaleDescendants() && h.full_sister === 0) {
+    else if (h.paternal_sister > 0 && this.hasFemaleDescendants() && !h.full_sister) {
       asabaFound = true;
       this.state.specialCases.push({
         type: 'paternal_sister_with_daughters',

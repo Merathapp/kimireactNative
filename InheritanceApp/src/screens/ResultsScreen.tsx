@@ -22,6 +22,7 @@ import PieChart from '../components/PieChart';
 import { appTypography } from '../constants/theme';
 import { HeirShare } from '../utils/HeirShare';
 import { BlockedHeir, SpecialCase, CalculationStep } from '../utils/InheritanceEngine';
+import { getHeirVerse } from '../constants/QuranicVerses';
 import * as Clipboard from 'expo-clipboard';
 import { writeAsStringAsync, cacheDirectory } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
@@ -396,9 +397,22 @@ const ResultsScreen: React.FC = () => {
               const rows = [
                 <DataTable.Row key={share.key}>
                   <DataTable.Cell>
-                    <View>
-                      <Text style={styles.heirName}>{share.name}</Text>
-                      <Text style={styles.heirType}>{share.type}</Text>
+                    <View style={styles.heirNameRow}>
+                      <View>
+                        <Text style={styles.heirName}>{share.name}</Text>
+                        <Text style={styles.heirType}>{share.type}</Text>
+                      </View>
+                      {getHeirVerse(share.key) && (
+                        <IconButton
+                          icon="book-open-variant"
+                          size={16}
+                          style={styles.verseIcon}
+                          onPress={() => {
+                            const v = getHeirVerse(share.key)!;
+                            Alert.alert(v.topic, `سورة ${v.sura} ${v.ayah}\n\n${v.text}`);
+                          }}
+                        />
+                      )}
                     </View>
                   </DataTable.Cell>
                   <DataTable.Cell numeric>{share.count}</DataTable.Cell>
@@ -628,12 +642,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#64748b'
   },
+  heirNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   heirName: {
     fontWeight: 'bold'
   },
   heirType: {
     fontSize: 10,
     color: '#64748b'
+  },
+  verseIcon: {
+    margin: 0,
+    padding: 0
   },
   amount: {
     fontWeight: 'bold',

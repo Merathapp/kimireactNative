@@ -3,15 +3,17 @@ import { useApp } from '../context/AppContext';
 import MainTabNavigator from './MainTabNavigator';
 import ResultsScreen from '../screens/ResultsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import ScenariosScreen from '../screens/ScenariosScreen';
 import { colors } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export type RootStackParamList = {
   MainTabs: undefined;
   Results: undefined;
   Settings: undefined;
+  Scenarios: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -49,12 +51,20 @@ const AppNavigator = () => {
           headerShown: true,
           title: isRTL ? 'حاسبة المواريث الإسلامية' : 'Islamic Inheritance Calculator',
           headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Settings')}
-              style={{ marginRight: 16 }}
-            >
-              <Ionicons name="settings-outline" size={24} color={colors.text.inverse} />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Scenarios')}
+                style={{ marginRight: 12 }}
+              >
+                <Ionicons name="folder-outline" size={22} color={colors.text.inverse} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Settings')}
+                style={{ marginRight: 16 }}
+              >
+                <Ionicons name="settings-outline" size={24} color={colors.text.inverse} />
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -70,6 +80,13 @@ const AppNavigator = () => {
         component={SettingsScreen}
         options={{
           title: isRTL ? 'الإعدادات' : 'Settings',
+        }}
+      />
+      <Stack.Screen
+        name="Scenarios"
+        component={ScenariosScreen}
+        options={{
+          title: isRTL ? 'السيناريوهات' : 'Scenarios',
         }}
       />
     </Stack.Navigator>
