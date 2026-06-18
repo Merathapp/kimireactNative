@@ -3,7 +3,9 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  Share
+  Share,
+  Alert,
+  Dimensions
 } from 'react-native';
 import {
   Text,
@@ -17,11 +19,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../context/AppContext';
 import PieChart from '../components/PieChart';
-import { Dimensions } from 'react-native';
-
-// IMPORT ADDED TYPES
+import { appTypography } from '../constants/theme';
 import { HeirShare } from '../utils/HeirShare';
 import { BlockedHeir, SpecialCase, CalculationStep } from '../utils/InheritanceEngine';
+import * as Clipboard from 'expo-clipboard';
+import { writeAsStringAsync, cacheDirectory } from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import * as Print from 'expo-print';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -81,7 +85,7 @@ const ResultsScreen: React.FC = () => {
     legendFontSize: 12
   })) || []);
 
-  const handleShare = async () => {
+  const buildResultText = () => {
     let text = `نتائج حساب الميراث - المذهب ${madhhabName}\n`;
     text += `التاريخ: ${new Date().toLocaleDateString('ar-SA')}\n`;
     text += `═══════════════════════════════════\n\n`;
@@ -90,7 +94,6 @@ const ResultsScreen: React.FC = () => {
     if (awlApplied) text += `(عالت من ${asl})\n`;
     text += `\nالأنصبة:\n`;
 
-    // FIXED: Added proper type
     shares?.forEach((s: HeirShare) => {
       text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString('en-US')}\n`;
       if (s.count > 1) {
@@ -100,20 +103,108 @@ const ResultsScreen: React.FC = () => {
 
     if (specialCases && specialCases.length > 0) {
       text += `\nحالات خاصة:\n`;
-      // FIXED: Added proper type
       specialCases.forEach((c: SpecialCase) => {
         text += `• ${c.name}: ${c.description}\n`;
       });
     }
+    return text;
+  };
 
+  const handleShare = async () => {
     try {
       await Share.share({
-        message: text,
+        message: buildResultText(),
         title: 'نتائج حساب الميراث'
       });
       addAuditLog('مشاركة النتائج', 'success', 'تمت مشاركة النتائج');
     } catch {
       addAuditLog('مشاركة النتائج', 'error', 'فشلت المشاركة');
+    }
+  };
+
+  const handleCopy = async () => {
+    try {
+      await Clipboard.setStringAsync(buildResultText());
+      Alert.alert('تم', 'تم نسخ النتائج إلى الحافظة');
+      addAuditLog('نسخ النتائج', 'success', 'تم نسخ النتائج');
+    } catch {
+      addAuditLog('نسخ النتائج', 'error', 'فشل النسخ');
+    }
+  };
+
+  const handleCsvExport = async () => {
+    try {
+      let csv = 'الوارث,النوع,العدد,الحصة,المبلغ\n';
+      shares?.forEach((s: HeirShare) => {
+        csv += `${s.name},${s.type},${s.count},${s.fraction.toDisplay()},${s.amount.toLocaleString('en-US')}\n`;
+        if (s.count > 1) {
+          csv += `لكل فرد,,${s.fraction.divide(s.count).toDisplay()},${s.amountPerPerson.toLocaleString('en-US')}\n`;
+        }
+      });
+
+      if (specialCases?.length) {
+        csv += '\nحالات خاصة\n';
+        specialCases.forEach((c: SpecialCase) => {
+          csv += `${c.name},${c.description}\n`;
+        });
+      }
+
+      const uri = cacheDirectory + 'merath_results.csv';
+      await writeAsStringAsync(uri, csv, { encoding: 'utf8' });
+      await Sharing.shareAsync(uri, { mimeType: 'text/csv', dialogTitle: 'تصدير CSV' });
+      addAuditLog('تصدير CSV', 'success', 'تم تصدير CSV');
+    } catch {
+      addAuditLog('تصدير CSV', 'error', 'فشل تصدير CSV');
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      let rows = '';
+      shares?.forEach((s: HeirShare) => {
+        rows += `<tr><td>${s.name}</td><td>${s.type}</td><td>${s.count}</td><td>${s.fraction.toDisplay()}</td><td>${s.amount.toLocaleString('en-US')}</td></tr>`;
+        if (s.count > 1) {
+          rows += `<tr class="per-person"><td colspan="2">لكل فرد</td><td></td><td>${s.fraction.divide(s.count).toDisplay()}</td><td>${s.amountPerPerson.toLocaleString('en-US')}</td></tr>`;
+        }
+      });
+
+      const html = `<!DOCTYPE html>
+<html dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<style>
+  body { font-family: 'Arial', sans-serif; padding: 20px; color: #1e293b; }
+  h1 { text-align: center; color: #1e293b; font-size: 22px; }
+  .summary { background: #f8fafc; padding: 12px; border-radius: 8px; margin: 12px 0; display: flex; gap: 16px; flex-wrap: wrap; }
+  .summary div { flex: 1; min-width: 120px; text-align: center; }
+  .summary .label { font-size: 12px; color: #64748b; }
+  .summary .value { font-size: 18px; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: #1e293b; color: #fff; padding: 10px; text-align: center; }
+  td { padding: 8px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  .per-person td { color: #64748b; font-style: italic; font-size: 13px; background: #f8fafc; }
+  .warning { color: #92400e; background: #fef3c7; padding: 8px; border-radius: 6px; margin: 8px 0; }
+  .note { color: #065f46; }
+  .footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+</style></head>
+<body>
+  <h1>نتائج حساب الميراث</h1>
+  <p style="text-align:center;color:#64748b;">المذهب: ${madhhabName} | ${new Date().toLocaleDateString('ar-SA')}</p>
+  <div class="summary">
+    <div><div class="label">صافي التركة</div><div class="value">${netEstate?.toLocaleString('en-US')}</div></div>
+    <div><div class="label">أصل المسألة</div><div class="value">${finalBase}${awlApplied ? ` (عالت من ${asl})` : ''}</div></div>
+    <div><div class="label">الحالة</div><div class="value">${getStatusText()}</div></div>
+  </div>
+  <table><thead><tr><th>الوارث</th><th>النوع</th><th>العدد</th><th>الحصة</th><th>المبلغ</th></tr></thead><tbody>${rows}</tbody></table>
+  ${specialCases?.length ? specialCases.map((c: SpecialCase) => `<div class="warning"><strong>${c.name}:</strong> ${c.description}</div>`).join('') : ''}
+  ${blockedHeirs?.length ? blockedHeirs.map((b: BlockedHeir) => `<div class="warning"><strong>محجوب:</strong> ${b.reason}</div>`).join('') : ''}
+  ${madhhabNotes?.length ? madhhabNotes.map((n: string) => `<div class="note">${n}</div>`).join('') : ''}
+  <div class="footer">تم الإنشاء بواسطة تطبيق ميراث</div>
+</body></html>`;
+
+      await Print.printAsync({ html });
+      addAuditLog('طباعة النتائج', 'success', 'تمت الطباعة');
+    } catch {
+      addAuditLog('طباعة النتائج', 'error', 'فشلت الطباعة');
     }
   };
 
@@ -363,6 +454,42 @@ const ResultsScreen: React.FC = () => {
         </Card>
       )}
 
+      {/* Action Buttons */}
+      <Card style={styles.card}>
+        <Card.Title title="إجراءات" />
+        <Card.Content>
+          <View style={styles.actionRow}>
+            <Button
+              mode="outlined"
+              icon="clipboard-text"
+              onPress={handleCopy}
+              style={styles.actionButton}
+              labelStyle={appTypography.labelLarge}
+            >
+              نسخ
+            </Button>
+            <Button
+              mode="outlined"
+              icon="file-delimited"
+              onPress={handleCsvExport}
+              style={styles.actionButton}
+              labelStyle={appTypography.labelLarge}
+            >
+              CSV
+            </Button>
+            <Button
+              mode="outlined"
+              icon="printer"
+              onPress={handlePrint}
+              style={styles.actionButton}
+              labelStyle={appTypography.labelLarge}
+            >
+              طباعة
+            </Button>
+          </View>
+        </Card.Content>
+      </Card>
+
       <View style={styles.bottomPadding} />
     </ScrollView>
   );
@@ -561,6 +688,15 @@ const styles = StyleSheet.create({
   stepDesc: {
     color: '#64748b',
     fontSize: 12
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 8,
+    justifyContent: 'center'
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: 8
   },
   bottomPadding: {
     height: 40
