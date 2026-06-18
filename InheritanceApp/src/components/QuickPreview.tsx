@@ -27,7 +27,7 @@ export const QuickPreview: React.FC<QuickPreviewProps> = ({
         <View style={styles.grid}>
           <Surface style={styles.item}>
             <Text style={styles.label}>التركة الصافية</Text>
-            <Text style={styles.value}>{netEstate.toLocaleString()}</Text>
+            <Text style={styles.value}>{netEstate.toLocaleString('en-US')}</Text>
           </Surface>
 
           <Surface style={styles.item}>

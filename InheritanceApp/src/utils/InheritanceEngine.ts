@@ -151,7 +151,7 @@ export class InheritanceEngine {
 
     if (will > maxWill && remaining > 0) {
       this.state.warnings.push(
-        `الوصية (${will.toLocaleString()}) تتجاوز الثلث. تم تعديلها إلى ${maxWill.toLocaleString()}`
+        `الوصية (${will.toLocaleString('en-US')}) تتجاوز الثلث. تم تعديلها إلى ${maxWill.toLocaleString('en-US')}`
       );
       will = maxWill;
     }
@@ -1393,7 +1393,7 @@ let bestReason = 'المقاسمة'; // Kept for reference
       }
 
       this.addStep('صافي التركة',
-        `${total.toLocaleString()} - ${funeral.toLocaleString()} (تجهيز) - ${debts.toLocaleString()} (ديون) - ${will.toLocaleString()} (وصية) = ${netEstate.toLocaleString()}`
+        `${total.toLocaleString('en-US')} - ${funeral.toLocaleString('en-US')} (تجهيز) - ${debts.toLocaleString('en-US')} (ديون) - ${will.toLocaleString('en-US')} (وصية) = ${netEstate.toLocaleString('en-US')}`
       );
 
       this.applyHijab();

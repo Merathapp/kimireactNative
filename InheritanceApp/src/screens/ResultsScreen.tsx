@@ -85,16 +85,16 @@ const ResultsScreen: React.FC = () => {
     let text = `نتائج حساب الميراث - المذهب ${madhhabName}\n`;
     text += `التاريخ: ${new Date().toLocaleDateString('ar-SA')}\n`;
     text += `═══════════════════════════════════\n\n`;
-    text += `صافي التركة: ${netEstate?.toLocaleString()}\n`;
+    text += `صافي التركة: ${netEstate?.toLocaleString('en-US')}\n`;
     text += `أصل المسألة: ${finalBase}\n`;
     if (awlApplied) text += `(عالت من ${asl})\n`;
     text += `\nالأنصبة:\n`;
 
     // FIXED: Added proper type
     shares?.forEach((s: HeirShare) => {
-      text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString()}\n`;
+      text += `• ${s.name}: ${s.fraction.toString()} = ${s.amount.toLocaleString('en-US')}\n`;
       if (s.count > 1) {
-        text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString()})\n`;
+        text += `  (لكل فرد: ${s.amountPerPerson.toLocaleString('en-US')})\n`;
       }
     });
 
@@ -168,18 +168,18 @@ const ResultsScreen: React.FC = () => {
           <View style={styles.summaryGrid}>
             <Surface style={styles.summaryItem}>
               <Text style={styles.summaryLabel}>إجمالي التركة</Text>
-              <Text style={styles.summaryValue}>{estate?.total.toLocaleString()}</Text>
+              <Text style={styles.summaryValue}>{estate?.total.toLocaleString('en-US')}</Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#fef2f2' }]}>
               <Text style={styles.summaryLabel}>الخصومات</Text>
               <Text style={[styles.summaryValue, { color: '#dc2626' }]}>
-                {((estate?.funeral || 0) + (estate?.debts || 0) + (estate?.will || 0)).toLocaleString()}
+                {((estate?.funeral || 0) + (estate?.debts || 0) + (estate?.will || 0)).toLocaleString('en-US')}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#f0fdf4' }]}>
               <Text style={styles.summaryLabel}>صافي التركة</Text>
               <Text style={[styles.summaryValue, { color: '#16a34a' }]}>
-                {netEstate?.toLocaleString()}
+                {netEstate?.toLocaleString('en-US')}
               </Text>
             </Surface>
             <Surface style={[styles.summaryItem, { backgroundColor: '#eef2ff' }]}>
@@ -310,12 +310,12 @@ const ResultsScreen: React.FC = () => {
                   </View>
                 </DataTable.Cell>
                 <DataTable.Cell numeric>{share.count}</DataTable.Cell>
-                <DataTable.Cell numeric>{share.fraction.toArabic()}</DataTable.Cell>
+                <DataTable.Cell numeric>{share.fraction.toDisplay()}</DataTable.Cell>
                 <DataTable.Cell numeric>
-                  <Text style={styles.amount}>{share.amount.toLocaleString()}</Text>
+                  <Text style={styles.amount}>{share.amount.toLocaleString('en-US')}</Text>
                   {share.count > 1 && (
                     <Text style={styles.perPerson}>
-                      /{share.amountPerPerson.toLocaleString()}
+                      /{share.amountPerPerson.toLocaleString('en-US')}
                     </Text>
                   )}
                 </DataTable.Cell>

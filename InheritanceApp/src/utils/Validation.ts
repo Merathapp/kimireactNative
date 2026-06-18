@@ -41,7 +41,7 @@ export const validateEstate = (estate: Estate): ValidationResult => {
   // Will cannot exceed 1/3 of remaining
   const remaining = afterFuneral - estate.debts;
   if (remaining > 0 && estate.will > remaining / 3) {
-    warnings.push(`الوصية (${estate.will.toLocaleString()}) تتجاوز الثلث (${(remaining / 3).toLocaleString()})`);
+    warnings.push(`الوصية (${estate.will.toLocaleString('en-US')}) تتجاوز الثلث (${(remaining / 3).toLocaleString('en-US')})`);
   }
 
   // Net estate must be positive

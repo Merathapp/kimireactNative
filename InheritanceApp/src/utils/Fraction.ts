@@ -120,6 +120,23 @@ export class Fraction {
     return `${this.num}/${this.den}`;
   }
 
+  toDisplay(): string {
+    if (this.num === 0) return '0';
+    const sign = this.num < 0 ? '-' : '';
+    if (this.den === 1) return sign + String(Math.abs(this.num));
+
+    const common: Record<string, string> = {
+      '1/2': '1/2', '1/3': '1/3', '2/3': '2/3', '1/4': '1/4', '3/4': '3/4',
+      '1/6': '1/6', '5/6': '5/6', '1/8': '1/8', '3/8': '3/8', '5/8': '5/8', '7/8': '7/8',
+      '1/12': '1/12', '5/12': '5/12', '7/12': '7/12', '11/12': '11/12'
+    };
+
+    const key = `${Math.abs(this.num)}/${this.den}`;
+    if (common[key]) return sign + common[key];
+
+    return sign + `${Math.abs(this.num)}/${this.den}`;
+  }
+
   toArabic(): string {
     const toArabicNum = (n: number) => String(Math.abs(n)).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
 

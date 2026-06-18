@@ -146,8 +146,8 @@ const CompareScreen: React.FC = () => {
                         >
                           {share ? (
                             <View>
-                              <Text style={styles.fraction}>{share.fraction.toArabic()}</Text>
-                              <Text style={styles.amount}>{share.amount.toLocaleString()}</Text>
+                              <Text style={styles.fraction}>{share.fraction.toDisplay()}</Text>
+                              <Text style={styles.amount}>{share.amount.toLocaleString('en-US')}</Text>
                             </View>
                           ) : (
                             <Text style={styles.dash}>-</Text>

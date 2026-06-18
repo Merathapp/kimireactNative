@@ -76,7 +76,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuditLog(prev => [
       {
         id: Date.now().toString(),
-        timestamp: new Date().toLocaleString('ar-SA'),
+        timestamp: new Date().toLocaleString('en-US'),
         action,
         type,
         message

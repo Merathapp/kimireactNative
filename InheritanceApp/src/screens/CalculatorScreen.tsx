@@ -151,7 +151,7 @@ const CalculatorScreen: React.FC = () => {
       if (result.success) {
         setLastResult(result);
         addAuditLog('حساب الميراث', 'success',
-          `تم الحساب بنجاح - التركة: ${estate.total.toLocaleString()} - المذهب: ${result.madhhabName}`
+          `تم الحساب بنجاح - التركة: ${estate.total.toLocaleString('en-US')} - المذهب: ${result.madhhabName}`
         );
         navigation.navigate('Results' as never);
       } else {
